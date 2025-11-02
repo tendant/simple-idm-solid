@@ -40,7 +40,7 @@ export class SimpleIdmClient {
 
   constructor(config: ApiClientConfig) {
     this.baseUrl = config.baseUrl.replace(/\/$/, ''); // Remove trailing slash
-    this.fetchFn = config.fetch || fetch;
+    this.fetchFn = config.fetch || fetch.bind(globalThis);
     this.onUnauthorized = config.onUnauthorized;
     this.onError = config.onError;
   }

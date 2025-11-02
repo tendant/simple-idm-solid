@@ -12,7 +12,7 @@
 
 import { render } from 'solid-js/web';
 import { createSignal, Show, For, Component } from 'solid-js';
-import { Router, Route, A, useNavigate, useSearchParams } from '@solidjs/router';
+import { Router, Route, A, useSearchParams, type RouteSectionProps } from '@solidjs/router';
 
 // Import all components
 import { LoginForm } from './components/LoginForm';
@@ -40,7 +40,7 @@ const NavMenu: Component = () => {
 
   return (
     <nav class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto px-4">
         <div class="flex justify-between h-16">
           <div class="flex space-x-8">
             <div class="flex-shrink-0 flex items-center">
@@ -66,6 +66,16 @@ const NavMenu: Component = () => {
         </div>
       </div>
     </nav>
+  );
+};
+
+// Root layout component
+const RootLayout: Component<RouteSectionProps> = (props) => {
+  return (
+    <div class="min-h-screen bg-gray-50">
+      <NavMenu />
+      <div class="py-8">{props.children}</div>
+    </div>
   );
 };
 
@@ -204,7 +214,6 @@ const HomePage: Component = () => {
 
 // Login test page
 const LoginTestPage: Component = () => {
-  const navigate = useNavigate();
   const [response, setResponse] = createSignal<any>(null);
 
   return (
@@ -326,18 +335,13 @@ const PasswordRegisterTestPage: Component = () => {
 // Main App
 const App: Component = () => {
   return (
-    <Router>
-      <div class="min-h-screen bg-gray-50">
-        <NavMenu />
-        <div class="py-8">
-          <Route path="/" component={HomePage} />
-          <Route path="/login" component={LoginTestPage} />
-          <Route path="/magic-link" component={MagicLinkTestPage} />
-          <Route path="/magic-link-validate" component={MagicLinkValidateTestPage} />
-          <Route path="/register-passwordless" component={PasswordlessRegisterTestPage} />
-          <Route path="/register-password" component={PasswordRegisterTestPage} />
-        </div>
-      </div>
+    <Router root={RootLayout}>
+      <Route path="/" component={HomePage} />
+      <Route path="/login" component={LoginTestPage} />
+      <Route path="/magic-link" component={MagicLinkTestPage} />
+      <Route path="/magic-link-validate" component={MagicLinkValidateTestPage} />
+      <Route path="/register-passwordless" component={PasswordlessRegisterTestPage} />
+      <Route path="/register-password" component={PasswordRegisterTestPage} />
     </Router>
   );
 };
