@@ -3,9 +3,10 @@
  * Import this file to use the default theme
  */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Tell Tailwind v4 to scan source files for utility classes */
+@source "../**/*.{ts,tsx,js,jsx}";
 
 @layer base {
   /* CSS Variables for theming */
@@ -27,12 +28,12 @@
 @layer components {
   /* Form container */
   .idm-form-container {
-    @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8;
+    @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4;
   }
 
   /* Form card */
   .idm-form-card {
-    @apply bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10;
+    @apply bg-white py-8 px-4 shadow-lg rounded-lg;
   }
 
   /* Input styles */
