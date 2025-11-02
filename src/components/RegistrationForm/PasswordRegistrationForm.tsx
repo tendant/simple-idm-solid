@@ -57,8 +57,8 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
       ],
       confirmPassword: [
         validators.required('Please confirm your password'),
-        (value, allValues) => {
-          if (value !== allValues.password) {
+        (value: string) => {
+          if (value && value !== form.values.password) {
             return 'Passwords do not match';
           }
           return undefined;

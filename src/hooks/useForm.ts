@@ -86,7 +86,7 @@ export function useForm<T extends Record<string, any>>(
 
   // Handle field change
   const handleChange = (field: keyof T, value: T[keyof T]) => {
-    setValues({ [field]: value } as Partial<T>);
+    setValues(field as any, value);
 
     // Validate field if it's been touched
     if (touched[field]) {
@@ -145,7 +145,7 @@ export function useForm<T extends Record<string, any>>(
 
   // Set field value programmatically
   const setFieldValue = (field: keyof T, value: T[keyof T]) => {
-    setValues({ [field]: value } as Partial<T>);
+    setValues(field as any, value);
   };
 
   // Set field error programmatically
