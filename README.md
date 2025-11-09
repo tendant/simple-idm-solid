@@ -336,9 +336,20 @@ r.Use(cors.Handler(cors.Options{
 
 ## Examples
 
-See the [examples directory](./examples/) for:
-- SolidStart full application
-- SolidJS SPA
+See the [examples directory](./examples/) for complete working examples:
+
+- **[Basic Usage](./examples/BASIC_USAGE.md)** - Quick code snippets for common use cases
+- **[SolidJS Basic App](./examples/solidjs-basic/)** - Complete SolidJS application with routing, authentication, and all components demonstrated
+
+### Running the Example
+
+```bash
+cd examples/solidjs-basic
+npm install
+npm run dev
+```
+
+Visit http://localhost:3000 to see all components in action
 
 ## Development
 
