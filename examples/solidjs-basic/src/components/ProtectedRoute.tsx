@@ -10,7 +10,7 @@ export const ProtectedRoute: Component<ProtectedRouteProps> = (props) => {
   const auth = useAuthContext();
 
   return (
-    <Show when={!auth.loading()} fallback={
+    <Show when={!auth.isLoading()} fallback={
       <div class="flex items-center justify-center min-h-screen">
         <div class="text-center">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
