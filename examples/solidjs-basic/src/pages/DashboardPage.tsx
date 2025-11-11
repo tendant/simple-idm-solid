@@ -57,7 +57,7 @@ const DashboardPage: Component = () => {
                   </h3>
                   <ul class="list-disc list-inside text-gray-700 space-y-2">
                     <li>Authenticated: {auth.isAuthenticated() ? '✅ Yes' : '❌ No'}</li>
-                    <li>Loading: {auth.loading() ? '⏳ Yes' : '✅ No'}</li>
+                    <li>Loading: {auth.isLoading() ? '⏳ Yes' : '✅ No'}</li>
                   </ul>
                 </div>
 
