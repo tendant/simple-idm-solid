@@ -17,7 +17,8 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc --project tsconfig.build.json",
+    "build": "vite build && tsc --project tsconfig.build.json && npm run build:styles",
+    "build:styles": "mkdir -p dist/styles && cp src/styles/default.css dist/styles/default.css",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

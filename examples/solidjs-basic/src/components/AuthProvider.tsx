@@ -20,8 +20,11 @@ export const AuthProvider: Component<AuthProviderProps> = (props) => {
   const client = new SimpleIdmClient({
     baseUrl: props.apiBaseUrl,
     onUnauthorized: () => {
-      // Redirect to login on 401
-      window.location.href = '/login';
+      // Redirect to login on 401, but only if not already on a public page
+      const publicPaths = ['/login', '/register', '/register-password', '/magic-link', '/magic-link/validate'];
+      if (!publicPaths.includes(window.location.pathname)) {
+        window.location.href = '/login';
+      }
     },
   });
 
@@ -33,7 +36,10 @@ export const AuthProvider: Component<AuthProviderProps> = (props) => {
     },
     onLogoutSuccess: () => {
       console.log('User logged out');
-      window.location.href = '/login';
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     },
   });
 

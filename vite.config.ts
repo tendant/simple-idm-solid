@@ -19,12 +19,6 @@ export default defineConfig({
       output: {
         preserveModules: true,
         preserveModulesRoot: 'src',
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.css')) {
-            return 'styles/default.css';
-          }
-          return assetInfo.name || 'asset';
-        },
       },
     },
     sourcemap: true,
