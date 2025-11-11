@@ -20,7 +20,7 @@ export default defineConfig({
         preserveModules: true,
         preserveModulesRoot: 'src',
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'style.css') {
+          if (assetInfo.name?.endsWith('.css')) {
             return 'styles/default.css';
           }
           return assetInfo.name || 'asset';

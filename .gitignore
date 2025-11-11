@@ -29,3 +29,5 @@ yarn-error.log*
 # Temp
 *.tmp
 .cache/
+
+.claude/

@@ -7,7 +7,6 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "solid": "./dist/index.jsx",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },

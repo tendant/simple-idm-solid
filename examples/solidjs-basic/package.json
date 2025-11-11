@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@solidjs/router": "^0.15.0",
-    "@tendant/simple-idm-solid": "^0.1.0",
+    "@tendant/simple-idm-solid": "file:../..",
     "solid-js": "^1.9.3"
   },
   "devDependencies": {
