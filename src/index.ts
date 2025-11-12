@@ -72,6 +72,30 @@ export type {
 } from './hooks/useForm';
 
 // ============================================================================
+// Headless Hooks (Business logic without UI)
+// ============================================================================
+
+export {
+  useLogin,
+  useMagicLink,
+  useRegistration,
+} from './headless';
+
+export type {
+  UseLoginConfig,
+  UseLoginReturn,
+  UseMagicLinkConfig,
+  UseMagicLinkReturn,
+  UseRegistrationConfig,
+  UseRegistrationReturn,
+  RegistrationMode,
+  PasswordStrength,
+  PasswordStrengthResult,
+  HeadlessBaseConfig,
+  HeadlessBaseState,
+} from './headless';
+
+// ============================================================================
 // Types
 // ============================================================================
 
