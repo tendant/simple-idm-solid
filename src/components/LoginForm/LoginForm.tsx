@@ -1,6 +1,5 @@
-import { Component, Show, createSignal } from 'solid-js';
-import { SimpleIdmClient } from '~/api/client';
-import { useForm, validators } from '~/hooks/useForm';
+import { Component, Show } from 'solid-js';
+import { useLogin } from '~/headless/useLogin';
 import { Input } from '~/primitives/Input';
 import { Button } from '~/primitives/Button';
 import { Label } from '~/primitives/Label';
@@ -28,58 +27,20 @@ export interface LoginFormProps {
 }
 
 export const LoginForm: Component<LoginFormProps> = (props) => {
-  const [error, setError] = createSignal<string | null>(null);
-  const [success, setSuccess] = createSignal<string | null>(null);
-
-  const client = new SimpleIdmClient({
-    baseUrl: props.apiBaseUrl,
-    onError: (err) => {
-      setError(err.message);
-      props.onError?.(err.message);
-    },
+  // Use headless login hook for business logic
+  const login = useLogin({
+    client: props.apiBaseUrl,
+    onSuccess: props.onSuccess,
+    onError: props.onError,
+    autoRedirect: !!props.redirectUrl,
+    redirectUrl: props.redirectUrl,
+    redirectDelay: 500,
   });
 
-  const form = useForm({
-    initialValues: {
-      username: '',
-      password: '',
-    },
-    validate: {
-      username: validators.required('Username is required'),
-      password: validators.required('Password is required'),
-    },
-    onSubmit: async (values) => {
-      try {
-        setError(null);
-        setSuccess(null);
-
-        const response = await client.login(values);
-
-        // Handle successful login
-        if (response.status === 'success') {
-          setSuccess('Login successful!');
-          props.onSuccess?.(response);
-
-          // Redirect if specified
-          if (props.redirectUrl) {
-            setTimeout(() => {
-              window.location.href = props.redirectUrl!;
-            }, 500);
-          }
-        }
-        // Note: 2FA and multiple users scenarios should be handled by parent
-        else if (response.status === '2fa_required') {
-          props.onSuccess?.(response);
-        } else if (response.status === 'multiple_users') {
-          props.onSuccess?.(response);
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Login failed';
-        setError(message);
-        props.onError?.(message);
-      }
-    },
-  });
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    login.submit();
+  };
 
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -91,19 +52,19 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
-          <Show when={error()}>
+          <Show when={login.error()}>
             <Alert variant="error" class="mb-6">
-              {error()}
+              {login.error()}
             </Alert>
           </Show>
 
-          <Show when={success()}>
+          <Show when={login.success()}>
             <Alert variant="success" class="mb-6">
-              {success()}
+              {login.success()}
             </Alert>
           </Show>
 
-          <form onSubmit={form.handleSubmit} class="space-y-6">
+          <form onSubmit={handleSubmit} class="space-y-6">
             {/* Username Field */}
             <div>
               <Label for="username" required>
@@ -116,11 +77,8 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
                   type="text"
                   autocomplete="username"
                   required
-                  value={form.values.username}
-                  onInput={(e) => form.handleChange('username', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('username')}
-                  error={form.touched.username && !!form.errors.username}
-                  helperText={form.touched.username ? form.errors.username : undefined}
+                  value={login.username()}
+                  onInput={(e) => login.setUsername(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -137,11 +95,8 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
                   type="password"
                   autocomplete="current-password"
                   required
-                  value={form.values.password}
-                  onInput={(e) => form.handleChange('password', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('password')}
-                  error={form.touched.password && !!form.errors.password}
-                  helperText={form.touched.password ? form.errors.password : undefined}
+                  value={login.password()}
+                  onInput={(e) => login.setPassword(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -152,10 +107,10 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
                 type="submit"
                 variant="primary"
                 fullWidth
-                loading={form.isSubmitting()}
-                disabled={form.isSubmitting()}
+                loading={login.isLoading()}
+                disabled={!login.canSubmit() || login.isLoading()}
               >
-                {form.isSubmitting() ? 'Signing in...' : 'Sign in'}
+                {login.isLoading() ? 'Signing in...' : 'Sign in'}
               </Button>
             </div>
 

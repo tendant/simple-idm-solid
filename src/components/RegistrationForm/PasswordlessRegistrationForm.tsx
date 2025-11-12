@@ -1,6 +1,5 @@
-import { Component, Show, createSignal } from 'solid-js';
-import { SimpleIdmClient } from '~/api/client';
-import { useForm, validators } from '~/hooks/useForm';
+import { Component, Show } from 'solid-js';
+import { useRegistration } from '~/headless/useRegistration';
 import { Input } from '~/primitives/Input';
 import { Button } from '~/primitives/Button';
 import { Label } from '~/primitives/Label';
@@ -30,65 +29,22 @@ export interface PasswordlessRegistrationFormProps {
 export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFormProps> = (
   props,
 ) => {
-  const [error, setError] = createSignal<string | null>(null);
-  const [success, setSuccess] = createSignal<string | null>(null);
-
-  const client = new SimpleIdmClient({
-    baseUrl: props.apiBaseUrl,
-    onError: (err) => {
-      setError(err.message);
-      props.onError?.(err.message);
-    },
+  // Use headless registration hook for business logic
+  const registration = useRegistration({
+    client: props.apiBaseUrl,
+    mode: 'passwordless',
+    onSuccess: props.onSuccess,
+    onError: props.onError,
+    requireInvitationCode: props.requireInvitationCode,
+    autoRedirect: !!props.redirectUrl,
+    redirectUrl: props.redirectUrl,
+    redirectDelay: 2000,
   });
 
-  const form = useForm({
-    initialValues: {
-      email: '',
-      username: '',
-      fullname: '',
-      invitation_code: '',
-    },
-    validate: {
-      email: [validators.required('Email is required'), validators.email()],
-      ...(props.requireInvitationCode && {
-        invitation_code: validators.required('Invitation code is required'),
-      }),
-    },
-    onSubmit: async (values) => {
-      try {
-        setError(null);
-        setSuccess(null);
-
-        const data = {
-          email: values.email,
-          ...(values.username && { username: values.username }),
-          ...(values.fullname && { fullname: values.fullname }),
-          ...(values.invitation_code && { invitation_code: values.invitation_code }),
-        };
-
-        const response = await client.signupPasswordless(data);
-        setSuccess(
-          response.message ||
-            'Account created successfully! Please check your email to complete registration.',
-        );
-        props.onSuccess?.(response);
-
-        // Redirect after success
-        if (props.redirectUrl) {
-          setTimeout(() => {
-            window.location.href = props.redirectUrl!;
-          }, 2000);
-        }
-
-        // Reset form
-        form.reset();
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Registration failed';
-        setError(message);
-        props.onError?.(message);
-      }
-    },
-  });
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    registration.submit();
+  };
 
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -103,19 +59,19 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
-          <Show when={error()}>
+          <Show when={registration.error()}>
             <Alert variant="error" class="mb-6">
-              {error()}
+              {registration.error()}
             </Alert>
           </Show>
 
-          <Show when={success()}>
+          <Show when={registration.success()}>
             <Alert variant="success" class="mb-6">
-              {success()}
+              {registration.success()}
             </Alert>
           </Show>
 
-          <form onSubmit={form.handleSubmit} class="space-y-6">
+          <form onSubmit={handleSubmit} class="space-y-6">
             {/* Email Field */}
             <div>
               <Label for="email" required>
@@ -128,11 +84,8 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
                   type="email"
                   autocomplete="email"
                   required
-                  value={form.values.email}
-                  onInput={(e) => form.handleChange('email', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('email')}
-                  error={form.touched.email && !!form.errors.email}
-                  helperText={form.touched.email ? form.errors.email : undefined}
+                  value={registration.email()}
+                  onInput={(e) => registration.setEmail(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -146,11 +99,8 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
                   name="username"
                   type="text"
                   autocomplete="username"
-                  value={form.values.username}
-                  onInput={(e) => form.handleChange('username', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('username')}
-                  error={form.touched.username && !!form.errors.username}
-                  helperText={form.touched.username ? form.errors.username : undefined}
+                  value={registration.username()}
+                  onInput={(e) => registration.setUsername(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -164,11 +114,8 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
                   name="fullname"
                   type="text"
                   autocomplete="name"
-                  value={form.values.fullname}
-                  onInput={(e) => form.handleChange('fullname', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('fullname')}
-                  error={form.touched.fullname && !!form.errors.fullname}
-                  helperText={form.touched.fullname ? form.errors.fullname : undefined}
+                  value={registration.fullname()}
+                  onInput={(e) => registration.setFullname(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -183,15 +130,8 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
                   id="invitation_code"
                   name="invitation_code"
                   type="text"
-                  value={form.values.invitation_code}
-                  onInput={(e) =>
-                    form.handleChange('invitation_code', e.currentTarget.value)
-                  }
-                  onBlur={() => form.handleBlur('invitation_code')}
-                  error={form.touched.invitation_code && !!form.errors.invitation_code}
-                  helperText={
-                    form.touched.invitation_code ? form.errors.invitation_code : undefined
-                  }
+                  value={registration.invitationCode()}
+                  onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -202,10 +142,10 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
                 type="submit"
                 variant="primary"
                 fullWidth
-                loading={form.isSubmitting()}
-                disabled={form.isSubmitting()}
+                loading={registration.isLoading()}
+                disabled={!registration.canSubmit() || registration.isLoading()}
               >
-                {form.isSubmitting() ? 'Creating account...' : 'Create Account'}
+                {registration.isLoading() ? 'Creating account...' : 'Create Account'}
               </Button>
             </div>
 

@@ -1,6 +1,5 @@
-import { Component, Show, createSignal } from 'solid-js';
-import { SimpleIdmClient } from '~/api/client';
-import { useForm, validators } from '~/hooks/useForm';
+import { Component, Show } from 'solid-js';
+import { useRegistration } from '~/headless/useRegistration';
 import { Input } from '~/primitives/Input';
 import { Button } from '~/primitives/Button';
 import { Label } from '~/primitives/Label';
@@ -28,107 +27,21 @@ export interface PasswordRegistrationFormProps {
 }
 
 export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> = (props) => {
-  const [error, setError] = createSignal<string | null>(null);
-  const [success, setSuccess] = createSignal<string | null>(null);
-
-  const client = new SimpleIdmClient({
-    baseUrl: props.apiBaseUrl,
-    onError: (err) => {
-      setError(err.message);
-      props.onError?.(err.message);
-    },
+  // Use headless registration hook for business logic
+  const registration = useRegistration({
+    client: props.apiBaseUrl,
+    mode: 'password',
+    onSuccess: props.onSuccess,
+    onError: props.onError,
+    requireInvitationCode: props.requireInvitationCode,
+    autoRedirect: !!props.redirectUrl,
+    redirectUrl: props.redirectUrl,
+    redirectDelay: 2000,
   });
 
-  const form = useForm({
-    initialValues: {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      fullname: '',
-      invitation_code: '',
-    },
-    validate: {
-      username: validators.required('Username is required'),
-      email: [validators.required('Email is required'), validators.email()],
-      password: [
-        validators.required('Password is required'),
-        validators.minLength(8, 'Password must be at least 8 characters'),
-      ],
-      confirmPassword: [
-        validators.required('Please confirm your password'),
-        (value: string) => {
-          if (value && value !== form.values.password) {
-            return 'Passwords do not match';
-          }
-          return undefined;
-        },
-      ],
-      ...(props.requireInvitationCode && {
-        invitation_code: validators.required('Invitation code is required'),
-      }),
-    },
-    onSubmit: async (values) => {
-      try {
-        setError(null);
-        setSuccess(null);
-
-        const data = {
-          username: values.username,
-          email: values.email,
-          password: values.password,
-          ...(values.fullname && { fullname: values.fullname }),
-          ...(values.invitation_code && { invitation_code: values.invitation_code }),
-        };
-
-        const response = await client.signupWithPassword(data);
-        setSuccess(response.message || 'Account created successfully! You can now log in.');
-        props.onSuccess?.(response);
-
-        // Redirect after success
-        if (props.redirectUrl) {
-          setTimeout(() => {
-            window.location.href = props.redirectUrl!;
-          }, 2000);
-        }
-
-        // Reset form
-        form.reset();
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Registration failed';
-        setError(message);
-        props.onError?.(message);
-      }
-    },
-  });
-
-  // Calculate password strength
-  const passwordStrength = () => {
-    const pwd = form.values.password;
-    if (!pwd) return 0;
-
-    let strength = 0;
-    if (pwd.length >= 8) strength += 25;
-    if (pwd.length >= 12) strength += 25;
-    if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength += 25;
-    if (/\d/.test(pwd)) strength += 12.5;
-    if (/[^a-zA-Z\d]/.test(pwd)) strength += 12.5;
-
-    return Math.min(100, strength);
-  };
-
-  const strengthColor = () => {
-    const strength = passwordStrength();
-    if (strength < 33) return 'bg-red-500';
-    if (strength < 66) return 'bg-yellow-500';
-    return 'bg-green-500';
-  };
-
-  const strengthText = () => {
-    const strength = passwordStrength();
-    if (strength < 33) return 'Weak';
-    if (strength < 66) return 'Medium';
-    return 'Strong';
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    registration.submit();
   };
 
   return (
@@ -139,19 +52,19 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
-          <Show when={error()}>
+          <Show when={registration.error()}>
             <Alert variant="error" class="mb-6">
-              {error()}
+              {registration.error()}
             </Alert>
           </Show>
 
-          <Show when={success()}>
+          <Show when={registration.success()}>
             <Alert variant="success" class="mb-6">
-              {success()}
+              {registration.success()}
             </Alert>
           </Show>
 
-          <form onSubmit={form.handleSubmit} class="space-y-6">
+          <form onSubmit={handleSubmit} class="space-y-6">
             {/* Username Field */}
             <div>
               <Label for="username" required>
@@ -164,11 +77,8 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                   type="text"
                   autocomplete="username"
                   required
-                  value={form.values.username}
-                  onInput={(e) => form.handleChange('username', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('username')}
-                  error={form.touched.username && !!form.errors.username}
-                  helperText={form.touched.username ? form.errors.username : undefined}
+                  value={registration.username()}
+                  onInput={(e) => registration.setUsername(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -185,11 +95,8 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                   type="email"
                   autocomplete="email"
                   required
-                  value={form.values.email}
-                  onInput={(e) => form.handleChange('email', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('email')}
-                  error={form.touched.email && !!form.errors.email}
-                  helperText={form.touched.email ? form.errors.email : undefined}
+                  value={registration.email()}
+                  onInput={(e) => registration.setEmail(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -206,24 +113,23 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                   type="password"
                   autocomplete="new-password"
                   required
-                  value={form.values.password}
-                  onInput={(e) => form.handleChange('password', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('password')}
-                  error={form.touched.password && !!form.errors.password}
-                  helperText={form.touched.password ? form.errors.password : undefined}
+                  value={registration.password()}
+                  onInput={(e) => registration.setPassword(e.currentTarget.value)}
                 />
               </div>
               {/* Password Strength Indicator */}
-              <Show when={form.values.password}>
+              <Show when={registration.password()}>
                 <div class="mt-2">
                   <div class="flex items-center gap-2">
                     <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        class={`h-full transition-all duration-300 ${strengthColor()}`}
-                        style={{ width: `${passwordStrength()}%` }}
+                        class={`h-full transition-all duration-300 ${registration.passwordStrength().color}`}
+                        style={{ width: `${registration.passwordStrength().percentage}%` }}
                       />
                     </div>
-                    <span class="text-xs text-gray-600 min-w-[60px]">{strengthText()}</span>
+                    <span class="text-xs text-gray-600 min-w-[60px]">
+                      {registration.passwordStrength().text}
+                    </span>
                   </div>
                 </div>
               </Show>
@@ -241,12 +147,11 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                   type="password"
                   autocomplete="new-password"
                   required
-                  value={form.values.confirmPassword}
-                  onInput={(e) => form.handleChange('confirmPassword', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('confirmPassword')}
-                  error={form.touched.confirmPassword && !!form.errors.confirmPassword}
+                  value={registration.confirmPassword()}
+                  onInput={(e) => registration.setConfirmPassword(e.currentTarget.value)}
+                  error={!registration.passwordsMatch()}
                   helperText={
-                    form.touched.confirmPassword ? form.errors.confirmPassword : undefined
+                    !registration.passwordsMatch() ? 'Passwords do not match' : undefined
                   }
                 />
               </div>
@@ -261,11 +166,8 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                   name="fullname"
                   type="text"
                   autocomplete="name"
-                  value={form.values.fullname}
-                  onInput={(e) => form.handleChange('fullname', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('fullname')}
-                  error={form.touched.fullname && !!form.errors.fullname}
-                  helperText={form.touched.fullname ? form.errors.fullname : undefined}
+                  value={registration.fullname()}
+                  onInput={(e) => registration.setFullname(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -280,13 +182,8 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                   id="invitation_code"
                   name="invitation_code"
                   type="text"
-                  value={form.values.invitation_code}
-                  onInput={(e) => form.handleChange('invitation_code', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('invitation_code')}
-                  error={form.touched.invitation_code && !!form.errors.invitation_code}
-                  helperText={
-                    form.touched.invitation_code ? form.errors.invitation_code : undefined
-                  }
+                  value={registration.invitationCode()}
+                  onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -297,10 +194,10 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                 type="submit"
                 variant="primary"
                 fullWidth
-                loading={form.isSubmitting()}
-                disabled={form.isSubmitting()}
+                loading={registration.isLoading()}
+                disabled={!registration.canSubmit() || registration.isLoading()}
               >
-                {form.isSubmitting() ? 'Creating account...' : 'Create Account'}
+                {registration.isLoading() ? 'Creating account...' : 'Create Account'}
               </Button>
             </div>
 

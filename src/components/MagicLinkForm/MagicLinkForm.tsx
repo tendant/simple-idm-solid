@@ -1,6 +1,5 @@
-import { Component, Show, createSignal } from 'solid-js';
-import { SimpleIdmClient } from '~/api/client';
-import { useForm, validators } from '~/hooks/useForm';
+import { Component, Show } from 'solid-js';
+import { useMagicLink } from '~/headless/useMagicLink';
 import { Input } from '~/primitives/Input';
 import { Button } from '~/primitives/Button';
 import { Label } from '~/primitives/Label';
@@ -23,56 +22,17 @@ export interface MagicLinkFormProps {
 }
 
 export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
-  const [error, setError] = createSignal<string | null>(null);
-  const [success, setSuccess] = createSignal<string | null>(null);
-  const [cooldown, setCooldown] = createSignal(0);
-
-  const client = new SimpleIdmClient({
-    baseUrl: props.apiBaseUrl,
-    onError: (err) => {
-      setError(err.message);
-      props.onError?.(err.message);
-    },
+  // Use headless magic link hook for business logic
+  const magicLink = useMagicLink({
+    client: props.apiBaseUrl,
+    onSuccess: props.onSuccess,
+    onError: props.onError,
+    cooldownSeconds: 60,
   });
 
-  const form = useForm({
-    initialValues: {
-      username: '',
-    },
-    validate: {
-      username: validators.required('Email or username is required'),
-    },
-    onSubmit: async (values) => {
-      try {
-        setError(null);
-        setSuccess(null);
-
-        const response = await client.requestMagicLink(values);
-        setSuccess(response.message || 'Magic link sent! Please check your email.');
-        props.onSuccess?.();
-
-        // Set cooldown timer (60 seconds)
-        setCooldown(60);
-        const interval = setInterval(() => {
-          setCooldown((prev) => {
-            if (prev <= 1) {
-              clearInterval(interval);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to send magic link';
-        setError(message);
-        props.onError?.(message);
-      }
-    },
-  });
-
-  const handleResend = async () => {
-    if (cooldown() > 0) return;
-    await form.handleSubmit(new Event('submit'));
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    magicLink.submit();
   };
 
   return (
@@ -88,16 +48,16 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
 
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
-          <Show when={error()}>
+          <Show when={magicLink.error()}>
             <Alert variant="error" class="mb-6">
-              {error()}
+              {magicLink.error()}
             </Alert>
           </Show>
 
-          <Show when={success()}>
+          <Show when={magicLink.success()}>
             <Alert variant="success" class="mb-6">
               <div>
-                <p class="font-medium">{success()}</p>
+                <p class="font-medium">{magicLink.success()}</p>
                 <p class="mt-2 text-sm">
                   The link will expire in 1 hour. If you don't receive the email, check
                   your spam folder or try again.
@@ -106,7 +66,7 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
             </Alert>
           </Show>
 
-          <form onSubmit={form.handleSubmit} class="space-y-6">
+          <form onSubmit={handleSubmit} class="space-y-6">
             {/* Username/Email Field */}
             <div>
               <Label for="username" required>
@@ -120,11 +80,8 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
                   autocomplete="username email"
                   required
                   placeholder="your@email.com or username"
-                  value={form.values.username}
-                  onInput={(e) => form.handleChange('username', e.currentTarget.value)}
-                  onBlur={() => form.handleBlur('username')}
-                  error={form.touched.username && !!form.errors.username}
-                  helperText={form.touched.username ? form.errors.username : undefined}
+                  value={magicLink.username()}
+                  onInput={(e) => magicLink.setUsername(e.currentTarget.value)}
                 />
               </div>
             </div>
@@ -135,25 +92,25 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
                 type="submit"
                 variant="primary"
                 fullWidth
-                loading={form.isSubmitting()}
-                disabled={form.isSubmitting() || cooldown() > 0}
+                loading={magicLink.isLoading()}
+                disabled={!magicLink.canSubmit() || magicLink.isLoading()}
               >
-                {form.isSubmitting()
+                {magicLink.isLoading()
                   ? 'Sending...'
-                  : cooldown() > 0
-                    ? `Resend in ${cooldown()}s`
+                  : magicLink.cooldown() > 0
+                    ? `Resend in ${magicLink.cooldown()}s`
                     : 'Send Magic Link'}
               </Button>
             </div>
 
             {/* Resend Button (after success) */}
-            <Show when={success() && cooldown() === 0}>
+            <Show when={magicLink.success() && magicLink.canResend()}>
               <div>
                 <Button
                   type="button"
                   variant="outline"
                   fullWidth
-                  onClick={handleResend}
+                  onClick={() => magicLink.resend()}
                 >
                   Resend Magic Link
                 </Button>
