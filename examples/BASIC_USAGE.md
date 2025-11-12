@@ -310,6 +310,238 @@ function MyCustomMagicLink() {
 }
 ```
 
+### Custom Profile Management with useProfile
+
+```tsx
+import { useProfile } from '@tendant/simple-idm-solid';
+import { createSignal, Show } from 'solid-js';
+
+function MyProfileManagement() {
+  const profile = useProfile({
+    client: 'http://localhost:4000',
+    onSuccess: (response, operation) => {
+      console.log(`${operation} updated!`, response);
+    },
+  });
+
+  const [tab, setTab] = createSignal<'username' | 'phone' | 'password'>('username');
+
+  return (
+    <div>
+      {/* Tab Navigation */}
+      <div>
+        <button onClick={() => setTab('username')}>Username</button>
+        <button onClick={() => setTab('phone')}>Phone</button>
+        <button onClick={() => setTab('password')}>Password</button>
+      </div>
+
+      {/* Update Username */}
+      <Show when={tab() === 'username'}>
+        <form onSubmit={(e) => { e.preventDefault(); profile.updateUsername(); }}>
+          <input
+            value={profile.username()}
+            onInput={(e) => profile.setUsername(e.currentTarget.value)}
+            placeholder="New Username"
+          />
+          <input
+            type="password"
+            value={profile.usernameCurrentPassword()}
+            onInput={(e) => profile.setUsernameCurrentPassword(e.currentTarget.value)}
+            placeholder="Current Password"
+          />
+          <button disabled={!profile.canSubmitUsername()}>
+            Update Username
+          </button>
+        </form>
+      </Show>
+
+      {/* Update Phone */}
+      <Show when={tab() === 'phone'}>
+        <form onSubmit={(e) => { e.preventDefault(); profile.updatePhone(); }}>
+          <input
+            type="tel"
+            value={profile.phone()}
+            onInput={(e) => profile.setPhone(e.currentTarget.value)}
+            placeholder="+1 555 123 4567"
+          />
+          <button disabled={!profile.canSubmitPhone()}>
+            Update Phone
+          </button>
+        </form>
+      </Show>
+
+      {/* Update Password */}
+      <Show when={tab() === 'password'}>
+        <form onSubmit={(e) => { e.preventDefault(); profile.updatePassword(); }}>
+          <input
+            type="password"
+            value={profile.currentPassword()}
+            onInput={(e) => profile.setCurrentPassword(e.currentTarget.value)}
+            placeholder="Current Password"
+          />
+          <input
+            type="password"
+            value={profile.newPassword()}
+            onInput={(e) => profile.setNewPassword(e.currentTarget.value)}
+            placeholder="New Password"
+          />
+          <div>Strength: {profile.passwordStrength().text}</div>
+          <input
+            type="password"
+            value={profile.confirmNewPassword()}
+            onInput={(e) => profile.setConfirmNewPassword(e.currentTarget.value)}
+            placeholder="Confirm Password"
+          />
+          <button disabled={!profile.canSubmitPassword()}>
+            Update Password
+          </button>
+        </form>
+      </Show>
+
+      {profile.success() && <p class="success">{profile.success()}</p>}
+      {profile.error() && <p class="error">{profile.error()}</p>}
+    </div>
+  );
+}
+```
+
+### Custom 2FA Setup with use2FA
+
+```tsx
+import { use2FA } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function My2FASetup() {
+  const twoFA = use2FA({
+    client: 'http://localhost:4000',
+    autoLoadStatus: true,
+  });
+
+  return (
+    <div>
+      <h2>Two-Factor Authentication</h2>
+
+      {/* Current Status */}
+      <div>
+        <p>2FA Enabled: {twoFA.isEnabled() ? 'Yes' : 'No'}</p>
+        <Show when={twoFA.enabledTypes().length > 0}>
+          <p>Methods: {twoFA.enabledTypes().join(', ')}</p>
+        </Show>
+      </div>
+
+      {/* Setup TOTP */}
+      <Show when={!twoFA.isEnabled()}>
+        <div>
+          <button onClick={() => twoFA.setupTOTP()}>
+            Setup Authenticator App
+          </button>
+
+          <Show when={twoFA.qrCode()}>
+            <div>
+              <img src={twoFA.qrCode()!} alt="QR Code" />
+              <p>Secret: {twoFA.secret()}</p>
+
+              <input
+                value={twoFA.code()}
+                onInput={(e) => twoFA.setCode(e.currentTarget.value)}
+                placeholder="Enter code from app"
+              />
+              <button
+                onClick={() => twoFA.enable()}
+                disabled={!twoFA.canEnable()}
+              >
+                Enable 2FA
+              </button>
+            </div>
+          </Show>
+        </div>
+      </Show>
+
+      {/* Disable 2FA */}
+      <Show when={twoFA.isEnabled()}>
+        {twoFA.enabledTypes().map((type) => (
+          <button onClick={() => twoFA.disable(type as any)}>
+            Disable {type}
+          </button>
+        ))}
+      </Show>
+
+      {twoFA.success() && <p class="success">{twoFA.success()}</p>}
+      {twoFA.error() && <p class="error">{twoFA.error()}</p>}
+    </div>
+  );
+}
+```
+
+### Custom Email Verification with useEmailVerification
+
+```tsx
+import { useEmailVerification } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+import { Show } from 'solid-js';
+
+// Verify email from URL token
+function EmailVerifyPage() {
+  const [params] = useSearchParams();
+
+  const emailVerify = useEmailVerification({
+    client: 'http://localhost:4000',
+    initialToken: params.token,
+    autoVerify: true,
+  });
+
+  return (
+    <div>
+      <Show when={emailVerify.isLoading()}>
+        <p>Verifying your email...</p>
+      </Show>
+
+      <Show when={emailVerify.success()}>
+        <div>
+          <h2>Email Verified!</h2>
+          <p>{emailVerify.success()}</p>
+          <a href="/login">Continue to Login</a>
+        </div>
+      </Show>
+
+      <Show when={emailVerify.error()}>
+        <div>
+          <p class="error">{emailVerify.error()}</p>
+          <button onClick={() => emailVerify.resend()}>
+            Resend Verification Email
+          </button>
+        </div>
+      </Show>
+    </div>
+  );
+}
+
+// Check verification status
+function EmailStatusWidget() {
+  const emailVerify = useEmailVerification({
+    client: 'http://localhost:4000',
+    autoLoadStatus: true,
+  });
+
+  return (
+    <div>
+      <Show when={emailVerify.isVerified()}>
+        <p>✓ Email verified on {emailVerify.verifiedAt()}</p>
+      </Show>
+
+      <Show when={!emailVerify.isVerified()}>
+        <div>
+          <p>⚠ Email not verified</p>
+          <button onClick={() => emailVerify.resend()}>
+            Send Verification Email
+          </button>
+        </div>
+      </Show>
+    </div>
+  );
+}
+```
+
 **Learn more:** See [examples/headless-custom-ui/](./headless-custom-ui/) for complete custom UI examples.
 
 ## Direct API Client Usage

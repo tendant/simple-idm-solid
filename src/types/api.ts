@@ -37,6 +37,86 @@ export interface TwoFactorMethod {
 }
 
 // ============================================================================
+// Profile Types
+// ============================================================================
+
+export interface UpdateUsernameRequest {
+  username: string;
+  current_password: string;
+}
+
+export interface UpdatePhoneRequest {
+  phone: string;
+}
+
+export interface UpdatePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface ProfileUpdateResponse {
+  message: string;
+  success: boolean;
+}
+
+// ============================================================================
+// 2FA Types
+// ============================================================================
+
+export interface Setup2FAResponse {
+  secret: string;
+  qr_code: string; // Base64 encoded QR code image
+  backup_codes?: string[];
+}
+
+export interface Enable2FARequest {
+  type: 'totp' | 'sms' | 'email';
+  code: string; // Verification code
+}
+
+export interface Validate2FARequest {
+  type: 'totp' | 'sms' | 'email';
+  code: string;
+  delivery_option?: string; // For SMS/email
+}
+
+export interface TwoFAStatus {
+  enabled: boolean;
+  types: string[];
+}
+
+export interface Send2FACodeRequest {
+  type: 'sms' | 'email';
+  delivery_option: string; // Phone number or email
+}
+
+// ============================================================================
+// Email Verification Types
+// ============================================================================
+
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+export interface VerifyEmailResponse {
+  message: string;
+  verified_at: string;
+}
+
+export interface ResendVerificationRequest {
+  user_id?: string; // Optional for admin override
+}
+
+export interface ResendVerificationResponse {
+  message: string;
+}
+
+export interface VerificationStatusResponse {
+  email_verified: boolean;
+  verified_at?: string;
+}
+
+// ============================================================================
 // Magic Link Types
 // ============================================================================
 

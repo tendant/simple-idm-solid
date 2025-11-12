@@ -18,6 +18,20 @@ import type {
   UserInfo,
   TokenRefreshResponse,
   ApiError,
+  UpdateUsernameRequest,
+  UpdatePhoneRequest,
+  UpdatePasswordRequest,
+  ProfileUpdateResponse,
+  Setup2FAResponse,
+  Enable2FARequest,
+  Validate2FARequest,
+  TwoFAStatus,
+  Send2FACodeRequest,
+  VerifyEmailRequest,
+  VerifyEmailResponse,
+  ResendVerificationRequest,
+  ResendVerificationResponse,
+  VerificationStatusResponse,
 } from '../types/api';
 import { ApiException } from '../types/api';
 
@@ -142,6 +156,150 @@ export class SimpleIdmClient {
    */
   async getCurrentUser(): Promise<UserInfo> {
     const response = await this.request<UserInfo>('/api/oauth2/userinfo', {
+      method: 'GET',
+    });
+    return response;
+  }
+
+  // ============================================================================
+  // Profile Management Methods
+  // ============================================================================
+
+  /**
+   * Update username
+   * Requires current password for verification
+   */
+  async updateUsername(data: UpdateUsernameRequest): Promise<ProfileUpdateResponse> {
+    const response = await this.request<ProfileUpdateResponse>('/api/idm/profile/username', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  /**
+   * Update phone number
+   */
+  async updatePhone(data: UpdatePhoneRequest): Promise<ProfileUpdateResponse> {
+    const response = await this.request<ProfileUpdateResponse>('/api/idm/profile/phone', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  /**
+   * Update password
+   * Requires current password for verification
+   */
+  async updatePassword(data: UpdatePasswordRequest): Promise<ProfileUpdateResponse> {
+    const response = await this.request<ProfileUpdateResponse>('/api/idm/profile/password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  // ============================================================================
+  // Two-Factor Authentication Methods
+  // ============================================================================
+
+  /**
+   * Get 2FA status for current user
+   */
+  async get2FAStatus(): Promise<TwoFAStatus> {
+    const response = await this.request<TwoFAStatus>('/idm/2fa/status', {
+      method: 'GET',
+    });
+    return response;
+  }
+
+  /**
+   * Setup TOTP 2FA (generates QR code)
+   * Returns secret and QR code for authenticator app
+   */
+  async setup2FATOTP(): Promise<Setup2FAResponse> {
+    const response = await this.request<Setup2FAResponse>('/idm/2fa/totp/setup', {
+      method: 'POST',
+    });
+    return response;
+  }
+
+  /**
+   * Enable 2FA after setup
+   * Requires verification code to confirm setup
+   */
+  async enable2FA(data: Enable2FARequest): Promise<ProfileUpdateResponse> {
+    const response = await this.request<ProfileUpdateResponse>('/idm/2fa/enable', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  /**
+   * Disable 2FA
+   */
+  async disable2FA(type: string): Promise<ProfileUpdateResponse> {
+    const response = await this.request<ProfileUpdateResponse>(`/idm/2fa/${type}/disable`, {
+      method: 'POST',
+    });
+    return response;
+  }
+
+  /**
+   * Send 2FA code via SMS or email
+   */
+  async send2FACode(data: Send2FACodeRequest): Promise<ProfileUpdateResponse> {
+    const response = await this.request<ProfileUpdateResponse>('/idm/2fa/send-code', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  /**
+   * Validate 2FA code
+   */
+  async validate2FA(data: Validate2FARequest): Promise<ProfileUpdateResponse> {
+    const response = await this.request<ProfileUpdateResponse>('/idm/2fa/validate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  // ============================================================================
+  // Email Verification Methods
+  // ============================================================================
+
+  /**
+   * Verify email with token (public endpoint)
+   */
+  async verifyEmail(data: VerifyEmailRequest): Promise<VerifyEmailResponse> {
+    const response = await this.request<VerifyEmailResponse>('/api/idm/email/verify', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  /**
+   * Resend verification email (requires authentication)
+   */
+  async resendVerificationEmail(data?: ResendVerificationRequest): Promise<ResendVerificationResponse> {
+    const response = await this.request<ResendVerificationResponse>('/api/idm/email/resend', {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return response;
+  }
+
+  /**
+   * Get email verification status (requires authentication)
+   */
+  async getVerificationStatus(): Promise<VerificationStatusResponse> {
+    const response = await this.request<VerificationStatusResponse>('/api/idm/email/status', {
       method: 'GET',
     });
     return response;

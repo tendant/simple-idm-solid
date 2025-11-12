@@ -30,3 +30,29 @@ export type {
   PasswordStrength,
   PasswordStrengthResult,
 } from './useRegistration';
+
+// Profile hook
+export { useProfile } from './useProfile';
+export type {
+  UseProfileConfig,
+  UseProfileReturn,
+  ProfileOperation,
+  PasswordStrengthResult as ProfilePasswordStrengthResult,
+} from './useProfile';
+
+// Two-Factor Authentication hook
+export { use2FA } from './use2FA';
+export type {
+  Use2FAConfig,
+  Use2FAReturn,
+  TwoFAType,
+  TwoFAOperation,
+} from './use2FA';
+
+// Email Verification hook
+export { useEmailVerification } from './useEmailVerification';
+export type {
+  UseEmailVerificationConfig,
+  UseEmailVerificationReturn,
+  EmailVerificationOperation,
+} from './useEmailVerification';

@@ -79,6 +79,9 @@ export {
   useLogin,
   useMagicLink,
   useRegistration,
+  useProfile,
+  use2FA,
+  useEmailVerification,
 } from './headless';
 
 export type {
@@ -91,6 +94,16 @@ export type {
   RegistrationMode,
   PasswordStrength,
   PasswordStrengthResult,
+  UseProfileConfig,
+  UseProfileReturn,
+  ProfileOperation,
+  Use2FAConfig,
+  Use2FAReturn,
+  TwoFAType,
+  TwoFAOperation,
+  UseEmailVerificationConfig,
+  UseEmailVerificationReturn,
+  EmailVerificationOperation,
   HeadlessBaseConfig,
   HeadlessBaseState,
 } from './headless';
@@ -112,6 +125,20 @@ export type {
   TokenRefreshResponse,
   ApiError,
   TwoFactorMethod,
+  UpdateUsernameRequest,
+  UpdatePhoneRequest,
+  UpdatePasswordRequest,
+  ProfileUpdateResponse,
+  Setup2FAResponse,
+  Enable2FARequest,
+  Validate2FARequest,
+  TwoFAStatus,
+  Send2FACodeRequest,
+  VerifyEmailRequest,
+  VerifyEmailResponse,
+  ResendVerificationRequest,
+  ResendVerificationResponse,
+  VerificationStatusResponse,
 } from './types/api';
 
 export { ApiException } from './types/api';

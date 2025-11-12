@@ -36,6 +36,9 @@ const login = useLogin({ client: 'http://localhost:4000' });
 ## Features
 
 - 🔐 **Complete Auth Components**: Login, Magic Link, Registration (passwordless & password)
+- 👤 **Profile Management**: Update username, phone, and password with validation
+- 🔒 **Two-Factor Authentication**: TOTP, SMS, and email 2FA setup and management
+- ✉️ **Email Verification**: Token validation and verification status tracking
 - 🎯 **Headless Hooks**: Business logic without UI for custom designs
 - 🎨 **Styled Components**: Ready-to-use with Tailwind CSS
 - 📦 **Lightweight**: <50KB gzipped
@@ -466,6 +469,275 @@ function MyCustomRegistration() {
 - `submit()`: Submit registration
 - `reset()`: Reset form state
 - `canSubmit()`: Whether form can be submitted
+
+### useProfile
+
+Profile management hook for updating username, phone, and password.
+
+```tsx
+import { useProfile } from '@tendant/simple-idm-solid';
+import { Show, createSignal } from 'solid-js';
+
+function MyProfileSettings() {
+  const profile = useProfile({
+    client: 'http://localhost:4000',
+    onSuccess: (response, operation) => {
+      console.log(`${operation} updated!`, response);
+    },
+  });
+
+  const [tab, setTab] = createSignal<'username' | 'phone' | 'password'>('username');
+
+  return (
+    <div>
+      {/* Update Username */}
+      <Show when={tab() === 'username'}>
+        <form onSubmit={(e) => { e.preventDefault(); profile.updateUsername(); }}>
+          <input
+            value={profile.username()}
+            onInput={(e) => profile.setUsername(e.currentTarget.value)}
+            placeholder="New Username"
+          />
+          <input
+            type="password"
+            value={profile.usernameCurrentPassword()}
+            onInput={(e) => profile.setUsernameCurrentPassword(e.currentTarget.value)}
+            placeholder="Current Password (required)"
+          />
+          <button disabled={!profile.canSubmitUsername()}>
+            Update Username
+          </button>
+        </form>
+      </Show>
+
+      {/* Update Password */}
+      <Show when={tab() === 'password'}>
+        <form onSubmit={(e) => { e.preventDefault(); profile.updatePassword(); }}>
+          <input
+            type="password"
+            value={profile.currentPassword()}
+            onInput={(e) => profile.setCurrentPassword(e.currentTarget.value)}
+            placeholder="Current Password"
+          />
+          <input
+            type="password"
+            value={profile.newPassword()}
+            onInput={(e) => profile.setNewPassword(e.currentTarget.value)}
+            placeholder="New Password"
+          />
+          {/* Password Strength */}
+          <Show when={profile.newPassword()}>
+            <div>Strength: {profile.passwordStrength().text}</div>
+          </Show>
+          <input
+            type="password"
+            value={profile.confirmNewPassword()}
+            onInput={(e) => profile.setConfirmNewPassword(e.currentTarget.value)}
+            placeholder="Confirm New Password"
+          />
+          <button disabled={!profile.canSubmitPassword()}>
+            Update Password
+          </button>
+        </form>
+      </Show>
+    </div>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `onSuccess?: (response, operation) => void`: Success callback
+- `onError?: (error, operation) => void`: Error callback
+- `minPasswordLength?: number`: Minimum password length (default: 8)
+
+**Returns:**
+- `username()`, `setUsername(value)`: New username state
+- `usernameCurrentPassword()`, `setUsernameCurrentPassword(value)`: Current password for username update
+- `phone()`, `setPhone(value)`: Phone number state
+- `currentPassword()`, `setCurrentPassword(value)`: Current password for password update
+- `newPassword()`, `setNewPassword(value)`: New password state
+- `confirmNewPassword()`, `setConfirmNewPassword(value)`: Confirm new password state
+- `isLoading()`: Whether update is in progress
+- `error()`, `success()`: Error/success messages
+- `currentOperation()`: Current operation ('username', 'phone', or 'password')
+- `passwordStrength()`: New password strength calculation
+- `passwordsMatch()`: Whether new passwords match
+- `updateUsername()`, `updatePhone()`, `updatePassword()`: Submit updates
+- `canSubmitUsername()`, `canSubmitPhone()`, `canSubmitPassword()`: Validation helpers
+
+### use2FA
+
+Two-factor authentication setup and management hook supporting TOTP, SMS, and email.
+
+```tsx
+import { use2FA } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function My2FASetup() {
+  const twoFA = use2FA({
+    client: 'http://localhost:4000',
+    autoLoadStatus: true,
+    onSuccess: (response, operation) => {
+      console.log(`2FA ${operation} successful!`, response);
+    },
+  });
+
+  return (
+    <div>
+      {/* Current Status */}
+      <p>2FA Enabled: {twoFA.isEnabled() ? 'Yes' : 'No'}</p>
+
+      {/* Setup TOTP */}
+      <Show when={!twoFA.isEnabled()}>
+        <button onClick={() => twoFA.setupTOTP()}>
+          Setup Authenticator App
+        </button>
+
+        <Show when={twoFA.qrCode()}>
+          <div>
+            <img src={twoFA.qrCode()!} alt="QR Code" />
+            <p>Secret: {twoFA.secret()}</p>
+
+            <input
+              value={twoFA.code()}
+              onInput={(e) => twoFA.setCode(e.currentTarget.value)}
+              placeholder="Enter code from app"
+            />
+            <button onClick={() => twoFA.enable()} disabled={!twoFA.canEnable()}>
+              Enable 2FA
+            </button>
+          </div>
+        </Show>
+      </Show>
+
+      {/* Disable 2FA */}
+      <Show when={twoFA.isEnabled()}>
+        {twoFA.enabledTypes().map((type) => (
+          <button onClick={() => twoFA.disable(type as any)}>
+            Disable {type}
+          </button>
+        ))}
+      </Show>
+    </div>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `onSuccess?: (response, operation) => void`: Success callback
+- `onError?: (error, operation) => void`: Error callback
+- `autoLoadStatus?: boolean`: Auto-load status on mount (default: true)
+
+**Returns:**
+- `status()`: Current 2FA status
+- `isEnabled()`: Whether 2FA is enabled
+- `enabledTypes()`: Array of enabled 2FA types
+- `setupData()`: TOTP setup response
+- `qrCode()`: Base64 QR code for TOTP
+- `secret()`: TOTP secret for manual entry
+- `backupCodes()`: Backup codes from setup
+- `type()`, `setType(type)`: Current 2FA type ('totp', 'sms', 'email')
+- `code()`, `setCode(value)`: Verification code state
+- `deliveryOption()`, `setDeliveryOption(value)`: Phone/email for SMS/email 2FA
+- `isLoading()`: Whether operation is in progress
+- `error()`, `success()`: Error/success messages
+- `loadStatus()`: Load current 2FA status
+- `setupTOTP()`: Setup TOTP 2FA (generates QR code)
+- `enable()`: Enable 2FA after setup
+- `disable(type)`: Disable specific 2FA type
+- `sendCode()`: Send 2FA code via SMS/email
+- `validate()`: Validate 2FA code
+- `canEnable()`, `canSendCode()`, `canValidate()`: Validation helpers
+
+### useEmailVerification
+
+Email verification hook for token validation, resending emails, and checking status.
+
+```tsx
+import { useEmailVerification } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+import { Show } from 'solid-js';
+
+// Auto-verify from URL token
+function EmailVerifyPage() {
+  const [params] = useSearchParams();
+
+  const emailVerify = useEmailVerification({
+    client: 'http://localhost:4000',
+    initialToken: params.token,
+    autoVerify: true,
+  });
+
+  return (
+    <div>
+      <Show when={emailVerify.isLoading()}>
+        <p>Verifying your email...</p>
+      </Show>
+
+      <Show when={emailVerify.success()}>
+        <div>
+          <h2>Email Verified!</h2>
+          <p>{emailVerify.success()}</p>
+          <a href="/login">Continue to Login</a>
+        </div>
+      </Show>
+
+      <Show when={emailVerify.error()}>
+        <div>
+          <p>{emailVerify.error()}</p>
+          <button onClick={() => emailVerify.resend()}>
+            Resend Verification Email
+          </button>
+        </div>
+      </Show>
+    </div>
+  );
+}
+
+// Check status widget
+function EmailStatusWidget() {
+  const emailVerify = useEmailVerification({
+    client: 'http://localhost:4000',
+    autoLoadStatus: true,
+  });
+
+  return (
+    <div>
+      <Show when={emailVerify.isVerified()}>
+        <p>✓ Email verified</p>
+      </Show>
+      <Show when={!emailVerify.isVerified()}>
+        <button onClick={() => emailVerify.resend()}>
+          Send Verification Email
+        </button>
+      </Show>
+    </div>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `onSuccess?: (response, operation) => void`: Success callback
+- `onError?: (error, operation) => void`: Error callback
+- `initialToken?: string`: Initial verification token
+- `autoVerify?: boolean`: Auto-verify on mount if initialToken provided
+- `autoLoadStatus?: boolean`: Auto-load verification status on mount
+
+**Returns:**
+- `token()`, `setToken(value)`: Verification token state
+- `status()`: Verification status response
+- `isVerified()`: Whether email is verified
+- `verifiedAt()`: When email was verified (ISO 8601 string)
+- `isLoading()`: Whether operation is in progress
+- `error()`, `success()`: Error/success messages
+- `verifyResponse()`: Last verification response
+- `verify()`: Verify email with current token
+- `resend()`: Resend verification email (requires auth)
+- `loadStatus()`: Load verification status (requires auth)
+- `canVerify()`: Whether verify form is valid
 
 **Learn more:**
 - [Headless Hooks Source Code](./src/headless/)
