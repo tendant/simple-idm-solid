@@ -1110,6 +1110,113 @@ const user = await client.getCurrentUser();
 await client.logout();
 ```
 
+### API Prefix Configuration
+
+The `SimpleIdmClient` supports configurable endpoint prefixes for flexible API gateway routing and versioning.
+
+#### Default Configuration (v1)
+
+By default, all endpoints use the v1 prefix pattern:
+
+```tsx
+const client = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  // Defaults to v1 prefixes:
+  // auth:          /api/v1/idm/auth
+  // signup:        /api/v1/idm/signup
+  // profile:       /api/v1/idm/profile
+  // twoFA:         /api/v1/idm/2fa
+  // email:         /api/v1/idm/email
+  // passwordReset: /api/v1/idm/password-reset
+  // oauth2:        /api/v1/oauth2
+});
+```
+
+#### Version-Based Configuration
+
+Specify an API version for automatic prefix generation:
+
+```tsx
+const client = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  apiVersion: 'v2', // All endpoints will use /api/v2/idm/*
+});
+```
+
+#### Custom Prefix Configuration
+
+Override specific prefixes for per-route-group customization:
+
+```tsx
+const client = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  prefixes: {
+    auth: '/custom/auth',
+    signup: '/custom/signup',
+    // Other prefixes use defaults
+  },
+});
+```
+
+#### Legacy Mode
+
+For backward compatibility with pre-v2.0.0 simple-idm backends:
+
+```tsx
+const client = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  useLegacyPrefixes: true,
+  // Uses legacy prefixes including:
+  // twoFA: /idm/2fa (inconsistent - missing /api prefix)
+});
+```
+
+**Note:** Legacy mode includes the inconsistent 2FA prefix `/idm/2fa/*` instead of `/api/idm/2fa/*`. Use `apiVersion: 'v1'` or custom prefixes for new deployments.
+
+#### Configuration Priority
+
+When multiple options are specified, priority is:
+
+1. **apiVersion** (highest)
+2. **useLegacyPrefixes**
+3. **prefixes** (partial overrides)
+4. **DEFAULT_V1_PREFIXES** (default)
+
+```tsx
+const client = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  apiVersion: 'v2', // This takes precedence
+  prefixes: {
+    auth: '/custom/auth', // This merges with v2 prefixes
+  },
+});
+// Result: auth = /custom/auth, others = /api/v2/idm/*
+```
+
+#### API Gateway Integration
+
+Configure prefixes to match your API gateway routing rules:
+
+```tsx
+// Kong Gateway example
+const client = new SimpleIdmClient({
+  baseUrl: 'https://api.example.com',
+  prefixes: {
+    auth: '/gateway/auth-service',
+    signup: '/gateway/auth-service/signup',
+    profile: '/gateway/user-service/profile',
+    // Route different feature groups to different backend services
+  },
+});
+
+// AWS API Gateway example
+const client = new SimpleIdmClient({
+  baseUrl: 'https://api.example.com',
+  apiVersion: 'v1',
+  // Uses consistent /api/v1/idm/* pattern for all routes
+});
+```
+
 ## Hooks
 
 ### useAuth

@@ -980,6 +980,55 @@ async function registerPasswordless(email: string) {
 }
 ```
 
+### API Prefix Configuration
+
+Configure custom API endpoint prefixes for API gateway routing:
+
+```tsx
+import { SimpleIdmClient } from '@tendant/simple-idm-solid';
+
+// Default (v1) configuration
+const client = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  // Uses /api/v1/idm/* for all endpoints
+});
+
+// Version-based configuration
+const clientV2 = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  apiVersion: 'v2', // All endpoints use /api/v2/idm/*
+});
+
+// Custom prefix configuration
+const customClient = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  prefixes: {
+    auth: '/gateway/auth-service',
+    signup: '/gateway/auth-service/signup',
+    profile: '/gateway/user-service/profile',
+    // Other prefixes use defaults
+  },
+});
+
+// Legacy mode (for backward compatibility)
+const legacyClient = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  useLegacyPrefixes: true,
+  // Uses old prefix pattern including /idm/2fa (without /api prefix)
+});
+
+// API Gateway integration example
+const gatewayClient = new SimpleIdmClient({
+  baseUrl: 'https://api.example.com',
+  apiVersion: 'v1',
+  prefixes: {
+    // Override specific route groups for microservices
+    profile: '/user-service/profile',
+    twoFA: '/security-service/2fa',
+  },
+});
+```
+
 ## Custom Form with useForm Hook
 
 ```tsx
