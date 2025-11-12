@@ -2,6 +2,12 @@
 
 Quick reference examples for common use cases.
 
+## Table of Contents
+
+- [Styled Components](#styled-components) - Ready-to-use components
+- [Headless Hooks](#headless-hooks) - Custom UI with business logic
+- [Direct API Client](#direct-api-client-usage) - Low-level API access
+
 ## Simple Login Form
 
 ```tsx
@@ -153,6 +159,158 @@ function ProtectedRoute(props) {
   </ProtectedRoute>
 )} />
 ```
+
+## Headless Hooks
+
+Headless hooks provide business logic without UI for building completely custom interfaces.
+
+### Custom Login with useLogin
+
+```tsx
+import { useLogin } from '@tendant/simple-idm-solid';
+
+function MyCustomLogin() {
+  const login = useLogin({
+    client: 'http://localhost:4000',
+    onSuccess: (response) => {
+      console.log('Logged in!', response);
+      window.location.href = '/dashboard';
+    },
+  });
+
+  return (
+    <div class="my-custom-design">
+      <input
+        value={login.username()}
+        onInput={(e) => login.setUsername(e.currentTarget.value)}
+        placeholder="Username"
+      />
+      <input
+        type="password"
+        value={login.password()}
+        onInput={(e) => login.setPassword(e.currentTarget.value)}
+        placeholder="Password"
+      />
+      <button
+        onClick={() => login.submit()}
+        disabled={!login.canSubmit() || login.isLoading()}
+      >
+        {login.isLoading() ? 'Signing in...' : 'Sign In'}
+      </button>
+      {login.error() && <div class="error">{login.error()}</div>}
+    </div>
+  );
+}
+```
+
+### Custom Registration with useRegistration
+
+```tsx
+import { useRegistration } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function MyCustomRegistration() {
+  const reg = useRegistration({
+    client: 'http://localhost:4000',
+    mode: 'password', // or 'passwordless'
+    onSuccess: () => window.location.href = '/login',
+  });
+
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); reg.submit(); }}>
+      <input
+        value={reg.username()}
+        onInput={(e) => reg.setUsername(e.currentTarget.value)}
+        placeholder="Username"
+      />
+      <input
+        type="email"
+        value={reg.email()}
+        onInput={(e) => reg.setEmail(e.currentTarget.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={reg.password()}
+        onInput={(e) => reg.setPassword(e.currentTarget.value)}
+        placeholder="Password"
+      />
+
+      {/* Password Strength Indicator */}
+      <Show when={reg.password()}>
+        <div class="strength-bar">
+          <div
+            class={reg.passwordStrength().color}
+            style={{ width: `${reg.passwordStrength().percentage}%` }}
+          />
+          <span>{reg.passwordStrength().text}</span>
+        </div>
+      </Show>
+
+      <input
+        type="password"
+        value={reg.confirmPassword()}
+        onInput={(e) => reg.setConfirmPassword(e.currentTarget.value)}
+        placeholder="Confirm Password"
+      />
+
+      <Show when={!reg.passwordsMatch() && reg.confirmPassword()}>
+        <p class="error">Passwords do not match</p>
+      </Show>
+
+      <button disabled={!reg.canSubmit()}>
+        Register
+      </button>
+    </form>
+  );
+}
+```
+
+### Custom Magic Link with useMagicLink
+
+```tsx
+import { useMagicLink } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function MyCustomMagicLink() {
+  const magic = useMagicLink({
+    client: 'http://localhost:4000',
+    cooldownSeconds: 60,
+  });
+
+  return (
+    <div>
+      <Show
+        when={!magic.success()}
+        fallback={<p>Check your email!</p>}
+      >
+        <input
+          type="email"
+          value={magic.username()}
+          onInput={(e) => magic.setUsername(e.currentTarget.value)}
+          placeholder="Email"
+        />
+        <button
+          onClick={() => magic.submit()}
+          disabled={!magic.canSubmit()}
+        >
+          {magic.cooldown() > 0
+            ? `Wait ${magic.cooldown()}s`
+            : 'Send Magic Link'}
+        </button>
+      </Show>
+
+      {magic.error() && <p class="error">{magic.error()}</p>}
+
+      <Show when={magic.success() && magic.canResend()}>
+        <button onClick={() => magic.resend()}>Resend</button>
+      </Show>
+    </div>
+  );
+}
+```
+
+**Learn more:** See [examples/headless-custom-ui/](./headless-custom-ui/) for complete custom UI examples.
 
 ## Direct API Client Usage
 
