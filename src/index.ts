@@ -25,6 +25,15 @@ export type {
   PasswordRegistrationFormProps,
 } from './components/RegistrationForm';
 
+export { ProfileSettingsForm } from './components/ProfileSettingsForm';
+export type { ProfileSettingsFormProps } from './components/ProfileSettingsForm';
+
+export { TwoFactorAuthSetup } from './components/TwoFactorAuthSetup';
+export type { TwoFactorAuthSetupProps } from './components/TwoFactorAuthSetup';
+
+export { EmailVerificationPage } from './components/EmailVerificationPage';
+export type { EmailVerificationPageProps } from './components/EmailVerificationPage';
+
 // ============================================================================
 // Primitives (optional export for customization)
 // ============================================================================

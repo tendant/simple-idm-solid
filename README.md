@@ -242,6 +242,104 @@ import { PasswordRegistrationForm } from '@tendant/simple-idm-solid';
 - `showLoginLink?: boolean`: Show login link
 - `redirectUrl?: string`: Auto-redirect after registration
 
+### ProfileSettingsForm
+
+Manage user profile with tabbed interface for username, phone, and password updates.
+
+```tsx
+import { ProfileSettingsForm } from '@tendant/simple-idm-solid';
+
+<ProfileSettingsForm
+  apiBaseUrl="http://localhost:4000"
+  onSuccess={(response, operation) => {
+    console.log(`${operation} updated!`, response);
+  }}
+  defaultTab="username"
+  showPhoneTab={true}
+/>
+```
+
+**Props:**
+- `apiBaseUrl` (required): Base URL of simple-idm backend
+- `onSuccess?: (response, operation) => void`: Success callback with operation type
+- `onError?: (error, operation) => void`: Error callback with operation type
+- `defaultTab?: 'username' | 'phone' | 'password'`: Initial active tab
+- `showPhoneTab?: boolean`: Show phone tab (default: true)
+
+**Features:**
+- ✓ Tabbed interface for Username / Phone / Password
+- ✓ Password strength indicator
+- ✓ Validation for each form
+- ✓ Success/error feedback per operation
+
+### TwoFactorAuthSetup
+
+Complete 2FA setup wizard with QR code display and status management.
+
+```tsx
+import { TwoFactorAuthSetup } from '@tendant/simple-idm-solid';
+
+<TwoFactorAuthSetup
+  apiBaseUrl="http://localhost:4000"
+  onSuccess={(response, operation) => {
+    console.log(`2FA ${operation} successful!`, response);
+  }}
+  autoLoadStatus={true}
+/>
+```
+
+**Props:**
+- `apiBaseUrl` (required): Base URL of simple-idm backend
+- `onSuccess?: (response, operation) => void`: Success callback with operation type
+- `onError?: (error, operation) => void`: Error callback with operation type
+- `autoLoadStatus?: boolean`: Auto-load 2FA status on mount (default: true)
+
+**Features:**
+- ✓ Multi-step wizard (Status → Setup → Verify)
+- ✓ QR code display for TOTP
+- ✓ Backup codes display
+- ✓ Enable/disable toggle
+- ✓ Status badge showing current state
+
+### EmailVerificationPage
+
+Email verification page with auto-verification from URL token.
+
+```tsx
+import { EmailVerificationPage } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+
+function VerifyEmail() {
+  const [params] = useSearchParams();
+
+  return (
+    <EmailVerificationPage
+      apiBaseUrl="http://localhost:4000"
+      token={params.token}
+      autoVerify={true}
+      onSuccess={(response) => {
+        console.log('Email verified!', response);
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+```
+
+**Props:**
+- `apiBaseUrl` (required): Base URL of simple-idm backend
+- `token?: string`: Verification token from URL query parameter
+- `autoVerify?: boolean`: Auto-verify on mount if token provided (default: true)
+- `onSuccess?: (response) => void`: Success callback
+- `onError?: (error) => void`: Error callback
+- `loginUrl?: string`: URL to login page (default: /login)
+
+**Features:**
+- ✓ Auto-verification from URL token
+- ✓ Loading/success/error states with icons
+- ✓ Resend email button
+- ✓ Manual token entry fallback
+
 ## Headless Hooks
 
 Headless hooks provide business logic without UI, giving you 100% control over the presentation layer.

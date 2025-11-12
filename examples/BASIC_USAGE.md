@@ -103,6 +103,84 @@ function RegisterWithPassword() {
 }
 ```
 
+## Profile Management
+
+```tsx
+import { ProfileSettingsForm } from '@tendant/simple-idm-solid';
+
+function ProfilePage() {
+  return (
+    <ProfileSettingsForm
+      apiBaseUrl="http://localhost:4000"
+      onSuccess={(response, operation) => {
+        console.log(`${operation} updated successfully!`, response);
+      }}
+      onError={(error, operation) => {
+        console.error(`Failed to update ${operation}:`, error);
+      }}
+      defaultTab="username"
+    />
+  );
+}
+```
+
+## Two-Factor Authentication Setup
+
+```tsx
+import { TwoFactorAuthSetup } from '@tendant/simple-idm-solid';
+
+function TwoFactorPage() {
+  return (
+    <TwoFactorAuthSetup
+      apiBaseUrl="http://localhost:4000"
+      onSuccess={(response, operation) => {
+        if (operation === 'enable') {
+          console.log('2FA enabled successfully!');
+        } else if (operation === 'disable') {
+          console.log('2FA disabled successfully!');
+        }
+      }}
+      autoLoadStatus={true}
+    />
+  );
+}
+```
+
+## Email Verification
+
+```tsx
+import { EmailVerificationPage } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+
+// Auto-verify from URL parameter
+function VerifyEmailPage() {
+  const [params] = useSearchParams();
+
+  return (
+    <EmailVerificationPage
+      apiBaseUrl="http://localhost:4000"
+      token={params.token}
+      autoVerify={true}
+      onSuccess={(response) => {
+        console.log('Email verified!', response);
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+
+// Manual token entry
+function ManualVerifyPage() {
+  return (
+    <EmailVerificationPage
+      apiBaseUrl="http://localhost:4000"
+      autoVerify={false}
+      loginUrl="/login"
+    />
+  );
+}
+```
+
 ## Using the Auth Hook
 
 ```tsx
