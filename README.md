@@ -10,15 +10,52 @@
 
 This project enables developers to easily embed identity workflows into any SolidJS, SolidStart, or Astro application without rebuilding authentication flows.
 
+## Two Ways to Use
+
+### 🎨 Styled Components (Quick Start)
+Pre-built, styled components ready to drop into your app:
+
+```tsx
+import { LoginForm } from '@tendant/simple-idm-solid';
+
+<LoginForm apiBaseUrl="http://localhost:4000" onSuccess={...} />
+```
+
+### 🎯 Headless Hooks (Custom UI)
+Business logic without UI for complete design control:
+
+```tsx
+import { useLogin } from '@tendant/simple-idm-solid';
+
+const login = useLogin({ client: 'http://localhost:4000' });
+// Build your own UI with 100% control
+```
+
+**→ See [Migration Guide](./MIGRATION_GUIDE.md) to choose the right approach**
+
 ## Features
 
 - 🔐 **Complete Auth Components**: Login, Magic Link, Registration (passwordless & password)
-- 🎨 **Tailwind Styled**: Fully customizable with Tailwind CSS
+- 🎯 **Headless Hooks**: Business logic without UI for custom designs
+- 🎨 **Styled Components**: Ready-to-use with Tailwind CSS
 - 📦 **Lightweight**: <50KB gzipped
 - 🔒 **Secure**: Built for HTTP-only cookie authentication
-- ♿ **Accessible**: WCAG AA compliant components
+- ♿ **Accessible**: WCAG AA compliant styled components
 - 📘 **TypeScript**: Full type safety
+- 🧪 **Testable**: Easy to test with mocked APIs
 - 🚀 **Zero Config**: Works with simple-idm out of the box
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Styled Components](#styled-components)
+- [Headless Hooks](#headless-hooks)
+- [API Client](#api-client)
+- [Hooks](#hooks)
+- [Examples](#examples)
+- [Migration Guide](#migration-guide)
+- [Customization](#customization)
 
 ## Installation
 
@@ -61,7 +98,9 @@ function LoginPage() {
 }
 ```
 
-## Components
+## Styled Components
+
+Pre-built, styled components ready to use.
 
 ### LoginForm
 
@@ -200,6 +239,239 @@ import { PasswordRegistrationForm } from '@tendant/simple-idm-solid';
 - `showLoginLink?: boolean`: Show login link
 - `redirectUrl?: string`: Auto-redirect after registration
 
+## Headless Hooks
+
+Headless hooks provide business logic without UI, giving you 100% control over the presentation layer.
+
+**Why use headless hooks?**
+- ✅ Complete UI customization
+- ✅ Works with any CSS framework (Tailwind, UnoCSS, vanilla CSS)
+- ✅ Smaller bundle size (logic only)
+- ✅ Better testability
+- ✅ Reuse logic across different UIs
+
+### useLogin
+
+Password-based login hook with 2FA and multi-user support.
+
+```tsx
+import { useLogin } from '@tendant/simple-idm-solid';
+
+function MyCustomLogin() {
+  const login = useLogin({
+    client: 'http://localhost:4000',
+    onSuccess: (response) => {
+      console.log('Logged in!', response);
+      window.location.href = '/dashboard';
+    },
+    autoRedirect: true,
+    redirectUrl: '/dashboard',
+  });
+
+  return (
+    <div class="my-custom-design">
+      <input
+        value={login.username()}
+        onInput={(e) => login.setUsername(e.currentTarget.value)}
+        placeholder="Username"
+      />
+      <input
+        type="password"
+        value={login.password()}
+        onInput={(e) => login.setPassword(e.currentTarget.value)}
+        placeholder="Password"
+      />
+      <button
+        onClick={() => login.submit()}
+        disabled={!login.canSubmit() || login.isLoading()}
+      >
+        {login.isLoading() ? 'Signing in...' : 'Sign In'}
+      </button>
+      {login.error() && <div class="error">{login.error()}</div>}
+    </div>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `onSuccess?: (response: LoginResponse) => void`: Success callback
+- `onError?: (error: string) => void`: Error callback
+- `autoRedirect?: boolean`: Auto-redirect after login
+- `redirectUrl?: string`: URL to redirect to
+- `redirectDelay?: number`: Delay before redirect (ms)
+
+**Returns:**
+- `username()`, `setUsername(value: string)`: Username state
+- `password()`, `setPassword(value: string)`: Password state
+- `isLoading()`: Whether login is in progress
+- `error()`: Error message if login failed
+- `success()`: Success message if login succeeded
+- `response()`: Full login response (includes 2FA, multiple users)
+- `submit()`: Submit login
+- `reset()`: Reset form state
+- `canSubmit()`: Whether form can be submitted
+
+### useMagicLink
+
+Passwordless authentication hook with cooldown timer.
+
+```tsx
+import { useMagicLink } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function MyCustomMagicLink() {
+  const magic = useMagicLink({
+    client: 'http://localhost:4000',
+    cooldownSeconds: 60,
+  });
+
+  return (
+    <div>
+      <Show when={!magic.success()} fallback={<p>Check your email!</p>}>
+        <input
+          type="email"
+          value={magic.username()}
+          onInput={(e) => magic.setUsername(e.currentTarget.value)}
+          placeholder="Email"
+        />
+        <button
+          onClick={() => magic.submit()}
+          disabled={!magic.canSubmit()}
+        >
+          {magic.cooldown() > 0
+            ? `Wait ${magic.cooldown()}s`
+            : 'Send Magic Link'}
+        </button>
+      </Show>
+
+      {magic.error() && <p class="error">{magic.error()}</p>}
+
+      <Show when={magic.success() && magic.canResend()}>
+        <button onClick={() => magic.resend()}>Resend</button>
+      </Show>
+    </div>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `onSuccess?: (response: MagicLinkResponse) => void`: Success callback
+- `onError?: (error: string) => void`: Error callback
+- `cooldownSeconds?: number`: Cooldown duration (default: 60)
+
+**Returns:**
+- `username()`, `setUsername(value: string)`: Email/username state
+- `isLoading()`: Whether request is in progress
+- `error()`, `success()`: Error/success messages
+- `response()`: Full API response
+- `cooldown()`: Seconds remaining before resend allowed
+- `submit()`: Send magic link
+- `resend()`: Resend magic link (after cooldown)
+- `reset()`: Reset form state
+- `canSubmit()`, `canResend()`: Validation helpers
+
+### useRegistration
+
+User registration hook supporting both password and passwordless modes.
+
+```tsx
+import { useRegistration } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function MyCustomRegistration() {
+  const reg = useRegistration({
+    client: 'http://localhost:4000',
+    mode: 'password', // or 'passwordless'
+    onSuccess: () => window.location.href = '/login',
+  });
+
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); reg.submit(); }}>
+      <input
+        value={reg.username()}
+        onInput={(e) => reg.setUsername(e.currentTarget.value)}
+        placeholder="Username"
+      />
+      <input
+        type="email"
+        value={reg.email()}
+        onInput={(e) => reg.setEmail(e.currentTarget.value)}
+        placeholder="Email"
+      />
+
+      {/* Password mode only */}
+      <Show when={reg.mode === 'password'}>
+        <input
+          type="password"
+          value={reg.password()}
+          onInput={(e) => reg.setPassword(e.currentTarget.value)}
+          placeholder="Password"
+        />
+
+        {/* Password Strength */}
+        <Show when={reg.password()}>
+          <div class="strength-indicator">
+            <div
+              class={reg.passwordStrength().color}
+              style={{ width: `${reg.passwordStrength().percentage}%` }}
+            />
+            <span>{reg.passwordStrength().text}</span>
+          </div>
+        </Show>
+
+        <input
+          type="password"
+          value={reg.confirmPassword()}
+          onInput={(e) => reg.setConfirmPassword(e.currentTarget.value)}
+          placeholder="Confirm Password"
+        />
+
+        <Show when={!reg.passwordsMatch() && reg.confirmPassword()}>
+          <p class="error">Passwords do not match</p>
+        </Show>
+      </Show>
+
+      <button disabled={!reg.canSubmit()}>Register</button>
+    </form>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `mode?: 'password' | 'passwordless'`: Registration mode (default: 'password')
+- `onSuccess?: (response: SignupResponse) => void`: Success callback
+- `onError?: (error: string) => void`: Error callback
+- `requireInvitationCode?: boolean`: Whether invitation code is required
+- `autoRedirect?: boolean`: Auto-redirect after registration
+- `redirectUrl?: string`: URL to redirect to
+
+**Returns:**
+- `username()`, `setUsername(value)`: Username state
+- `email()`, `setEmail(value)`: Email state
+- `password()`, `setPassword(value)`: Password state
+- `confirmPassword()`, `setConfirmPassword(value)`: Confirm password state
+- `fullname()`, `setFullname(value)`: Full name state
+- `invitationCode()`, `setInvitationCode(value)`: Invitation code state
+- `isLoading()`: Whether registration is in progress
+- `error()`, `success()`: Error/success messages
+- `passwordStrength()`: Password strength calculation
+  - `percentage: number`: Strength 0-100
+  - `level: 'weak' | 'medium' | 'strong'`
+  - `color: string`: CSS class for color
+  - `text: string`: Display text
+- `passwordsMatch()`: Whether passwords match
+- `submit()`: Submit registration
+- `reset()`: Reset form state
+- `canSubmit()`: Whether form can be submitted
+
+**Learn more:**
+- [Headless Hooks Source Code](./src/headless/)
+- [Custom UI Examples](./examples/headless-custom-ui/)
+- [Migration Guide: Styled → Headless](./MIGRATION_GUIDE.md)
+
 ## API Client
 
 Use the `SimpleIdmClient` directly for custom implementations:
@@ -334,22 +606,36 @@ r.Use(cors.Handler(cors.Options{
 - **SolidJS**: ^1.8.0
 - **Tailwind CSS**: ^4.0.0 (with @tailwindcss/vite)
 
+## Migration Guide
+
+Choosing between styled components and headless hooks? See the comprehensive [Migration Guide](./MIGRATION_GUIDE.md) for:
+
+- ✅ When to use styled vs headless
+- ✅ Step-by-step migration examples
+- ✅ Props mapping reference
+- ✅ Common patterns
+- ✅ FAQ
+
 ## Examples
 
 See the [examples directory](./examples/) for complete working examples:
 
-- **[Basic Usage](./examples/BASIC_USAGE.md)** - Quick code snippets for common use cases
-- **[SolidJS Basic App](./examples/solidjs-basic/)** - Complete SolidJS application with routing, authentication, and all components demonstrated
+### Quick Reference
+- **[Basic Usage](./examples/BASIC_USAGE.md)** - Quick code snippets for styled components and headless hooks
 
-### Running the Example
+### Complete Applications
+- **[SolidJS Basic App](./examples/solidjs-basic/)** - Full app with routing, auth context, and all styled components
+- **[Custom UI with Headless Hooks](./examples/headless-custom-ui/)** - Building custom UIs with headless hooks and Tailwind
+- **[Testing with Mocked API](./examples/testing-with-mocks/)** - Unit and integration testing guide
+
+### Running Examples
 
 ```bash
+# Styled components example
 cd examples/solidjs-basic
-npm install
-npm run dev
+npm install && npm run dev
+# Visit http://localhost:3000
 ```
-
-Visit http://localhost:3000 to see all components in action
 
 ## Development
 
