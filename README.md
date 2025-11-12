@@ -36,6 +36,7 @@ const login = useLogin({ client: 'http://localhost:4000' });
 ## Features
 
 - 🔐 **Complete Auth Components**: Login, Magic Link, Registration (passwordless & password)
+- 🔑 **Password Reset**: Forgot password and reset password flows with token validation
 - 👤 **Profile Management**: Update username, phone, and password with validation
 - 🔒 **Two-Factor Authentication**: TOTP, SMS, and email 2FA setup and management
 - ✉️ **Email Verification**: Token validation and verification status tracking
@@ -338,6 +339,78 @@ function VerifyEmail() {
 - ✓ Auto-verification from URL token
 - ✓ Loading/success/error states with icons
 - ✓ Resend email button
+- ✓ Manual token entry fallback
+
+### ForgotPasswordForm
+
+Request a password reset link via email or username.
+
+```tsx
+import { ForgotPasswordForm } from '@tendant/simple-idm-solid';
+
+<ForgotPasswordForm
+  apiBaseUrl="http://localhost:4000"
+  method="email"
+  onSuccess={(response) => {
+    console.log('Password reset email sent!', response);
+  }}
+  loginUrl="/login"
+/>
+```
+
+**Props:**
+- `apiBaseUrl` (required): Base URL of simple-idm backend
+- `method?: 'email' | 'username' | 'both'`: Input method (default: 'email')
+- `onSuccess?: (response) => void`: Success callback
+- `onError?: (error) => void`: Error callback
+- `loginUrl?: string`: URL to login page (default: /login)
+
+**Features:**
+- ✓ Email or username input validation
+- ✓ Success message with instructions
+- ✓ Error handling with retry
+- ✓ Back to login link
+
+### ResetPasswordForm
+
+Reset password using token from email with strength validation.
+
+```tsx
+import { ResetPasswordForm } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+
+function ResetPassword() {
+  const [params] = useSearchParams();
+
+  return (
+    <ResetPasswordForm
+      apiBaseUrl="http://localhost:4000"
+      token={params.token}
+      autoLoadPolicy={true}
+      onSuccess={(response) => {
+        console.log('Password reset!', response);
+        window.location.href = '/login';
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+```
+
+**Props:**
+- `apiBaseUrl` (required): Base URL of simple-idm backend
+- `token?: string`: Reset token from URL query parameter
+- `showTokenInput?: boolean`: Show token input field (default: false if token provided)
+- `autoLoadPolicy?: boolean`: Auto-load password policy (default: true)
+- `onSuccess?: (response) => void`: Success callback
+- `onError?: (error) => void`: Error callback
+- `loginUrl?: string`: URL to login page (default: /login)
+
+**Features:**
+- ✓ Password strength indicator
+- ✓ Password policy validation from backend
+- ✓ Confirmation matching
+- ✓ Success state with redirect to login
 - ✓ Manual token entry fallback
 
 ## Headless Hooks
@@ -836,6 +909,173 @@ function EmailStatusWidget() {
 - `resend()`: Resend verification email (requires auth)
 - `loadStatus()`: Load verification status (requires auth)
 - `canVerify()`: Whether verify form is valid
+
+### useForgotPassword
+
+Password reset request hook for initiating password reset via email or username.
+
+```tsx
+import { useForgotPassword } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function ForgotPasswordPage() {
+  const forgotPassword = useForgotPassword({
+    client: 'http://localhost:4000',
+    method: 'email', // or 'username' or 'both'
+    onSuccess: (response) => {
+      console.log('Reset email sent!', response);
+    },
+  });
+
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); forgotPassword.submit(); }}>
+      <input
+        type={forgotPassword.method() === 'email' ? 'email' : 'text'}
+        value={forgotPassword.identifier()}
+        onInput={(e) => forgotPassword.setIdentifier(e.currentTarget.value)}
+        placeholder={forgotPassword.method() === 'email' ? 'your@email.com' : 'username'}
+      />
+
+      <button
+        type="submit"
+        disabled={!forgotPassword.canSubmit() || forgotPassword.isLoading()}
+      >
+        {forgotPassword.isLoading() ? 'Sending...' : 'Send Reset Link'}
+      </button>
+
+      <Show when={forgotPassword.error()}>
+        <p class="error">{forgotPassword.error()}</p>
+      </Show>
+
+      <Show when={forgotPassword.success()}>
+        <p class="success">{forgotPassword.success()}</p>
+      </Show>
+    </form>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `method?: 'email' | 'username' | 'both'`: Input method (default: 'email')
+- `onSuccess?: (response) => void`: Success callback
+- `onError?: (error) => void`: Error callback
+
+**Returns:**
+- `identifier()`, `setIdentifier(value)`: Email/username input state
+- `isLoading()`: Whether request is in progress
+- `error()`, `success()`: Error/success messages
+- `response()`: Last API response
+- `submit()`: Submit password reset request
+- `reset()`: Reset form state
+- `canSubmit()`: Whether form is valid
+- `method()`: Configured input method
+
+### useResetPassword
+
+Password reset completion hook with token validation and password strength checking.
+
+```tsx
+import { useResetPassword } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+import { Show } from 'solid-js';
+
+function ResetPasswordPage() {
+  const [params] = useSearchParams();
+
+  const resetPassword = useResetPassword({
+    client: 'http://localhost:4000',
+    initialToken: params.token,
+    autoLoadPolicy: true,
+    onSuccess: (response) => {
+      console.log('Password reset!', response);
+      window.location.href = '/login';
+    },
+  });
+
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); resetPassword.submit(); }}>
+      <Show when={!params.token}>
+        <input
+          type="text"
+          value={resetPassword.token()}
+          onInput={(e) => resetPassword.setToken(e.currentTarget.value)}
+          placeholder="Reset token"
+        />
+      </Show>
+
+      <input
+        type="password"
+        value={resetPassword.newPassword()}
+        onInput={(e) => resetPassword.setNewPassword(e.currentTarget.value)}
+        placeholder="New password"
+      />
+
+      {/* Password Strength Indicator */}
+      <Show when={resetPassword.newPassword().length > 0}>
+        <div class="strength-indicator">
+          <span class={resetPassword.passwordStrength().color}>
+            {resetPassword.passwordStrength().label}
+          </span>
+          <div class="progress-bar">
+            <div style={{ width: `${resetPassword.passwordStrength().percentage}%` }} />
+          </div>
+        </div>
+      </Show>
+
+      <input
+        type="password"
+        value={resetPassword.confirmPassword()}
+        onInput={(e) => resetPassword.setConfirmPassword(e.currentTarget.value)}
+        placeholder="Confirm password"
+      />
+
+      <Show when={!resetPassword.passwordsMatch() && resetPassword.confirmPassword()}>
+        <p class="error">Passwords do not match</p>
+      </Show>
+
+      <button
+        type="submit"
+        disabled={!resetPassword.canSubmit() || resetPassword.isLoading()}
+      >
+        {resetPassword.isLoading() ? 'Resetting...' : 'Reset Password'}
+      </button>
+
+      <Show when={resetPassword.error()}>
+        <p class="error">{resetPassword.error()}</p>
+      </Show>
+
+      <Show when={resetPassword.success()}>
+        <p class="success">{resetPassword.success()}</p>
+      </Show>
+    </form>
+  );
+}
+```
+
+**Config:**
+- `client`: SimpleIdmClient instance or base URL string
+- `initialToken?: string`: Initial reset token from URL
+- `autoLoadPolicy?: boolean`: Auto-load password policy (default: true)
+- `minPasswordLength?: number`: Minimum password length (default: 8, overridden by policy)
+- `onSuccess?: (response) => void`: Success callback
+- `onError?: (error) => void`: Error callback
+
+**Returns:**
+- `token()`, `setToken(value)`: Reset token state
+- `newPassword()`, `setNewPassword(value)`: New password state
+- `confirmPassword()`, `setConfirmPassword(value)`: Confirmation state
+- `isLoading()`: Whether operation is in progress
+- `error()`, `success()`: Error/success messages
+- `response()`: Last API response
+- `policy()`: Password policy from backend
+- `passwordStrength()`: Password strength analysis (level, label, percentage, color)
+- `passwordsMatch()`: Whether passwords match
+- `meetsPolicy()`: Whether password meets policy requirements
+- `submit()`: Submit password reset
+- `reset()`: Reset form state
+- `canSubmit()`: Whether form is valid
+- `loadPolicy()`: Load password policy from API
 
 **Learn more:**
 - [Headless Hooks Source Code](./src/headless/)

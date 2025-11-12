@@ -188,6 +188,40 @@ export interface TokenRefreshResponse {
 }
 
 // ============================================================================
+// Password Reset Types
+// ============================================================================
+
+export interface PasswordResetInitRequest {
+  username?: string;
+  email?: string;
+}
+
+export interface PasswordResetInitResponse {
+  message: string;
+}
+
+export interface PasswordResetRequest {
+  token: string;
+  new_password: string;
+}
+
+export interface PasswordResetResponse {
+  message: string;
+}
+
+export interface PasswordPolicyResponse {
+  min_length: number;
+  require_uppercase: boolean;
+  require_lowercase: boolean;
+  require_digit: boolean;
+  require_special_char: boolean;
+  disallow_common_pwds: boolean;
+  max_repeated_chars: number;
+  history_check_count: number;
+  expiration_days: number;
+}
+
+// ============================================================================
 // Error Types
 // ============================================================================
 

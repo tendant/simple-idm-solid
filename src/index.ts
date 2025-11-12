@@ -34,6 +34,12 @@ export type { TwoFactorAuthSetupProps } from './components/TwoFactorAuthSetup';
 export { EmailVerificationPage } from './components/EmailVerificationPage';
 export type { EmailVerificationPageProps } from './components/EmailVerificationPage';
 
+export { ForgotPasswordForm } from './components/ForgotPasswordForm';
+export type { ForgotPasswordFormProps } from './components/ForgotPasswordForm';
+
+export { ResetPasswordForm } from './components/ResetPasswordForm';
+export type { ResetPasswordFormProps } from './components/ResetPasswordForm';
+
 // ============================================================================
 // Primitives (optional export for customization)
 // ============================================================================
@@ -91,6 +97,8 @@ export {
   useProfile,
   use2FA,
   useEmailVerification,
+  useForgotPassword,
+  useResetPassword,
 } from './headless';
 
 export type {
@@ -113,6 +121,11 @@ export type {
   UseEmailVerificationConfig,
   UseEmailVerificationReturn,
   EmailVerificationOperation,
+  UseForgotPasswordConfig,
+  UseForgotPasswordReturn,
+  ForgotPasswordMethod,
+  UseResetPasswordConfig,
+  UseResetPasswordReturn,
   HeadlessBaseConfig,
   HeadlessBaseState,
 } from './headless';
@@ -148,6 +161,11 @@ export type {
   ResendVerificationRequest,
   ResendVerificationResponse,
   VerificationStatusResponse,
+  PasswordResetInitRequest,
+  PasswordResetInitResponse,
+  PasswordResetRequest,
+  PasswordResetResponse,
+  PasswordPolicyResponse,
 } from './types/api';
 
 export { ApiException } from './types/api';

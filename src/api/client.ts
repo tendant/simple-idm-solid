@@ -32,6 +32,11 @@ import type {
   ResendVerificationRequest,
   ResendVerificationResponse,
   VerificationStatusResponse,
+  PasswordResetInitRequest,
+  PasswordResetInitResponse,
+  PasswordResetRequest,
+  PasswordResetResponse,
+  PasswordPolicyResponse,
 } from '../types/api';
 import { ApiException } from '../types/api';
 
@@ -300,6 +305,65 @@ export class SimpleIdmClient {
    */
   async getVerificationStatus(): Promise<VerificationStatusResponse> {
     const response = await this.request<VerificationStatusResponse>('/api/idm/email/status', {
+      method: 'GET',
+    });
+    return response;
+  }
+
+  // ============================================================================
+  // Password Reset Methods
+  // ============================================================================
+
+  /**
+   * Initiate password reset by email (public endpoint)
+   * Sends a password reset token to the user's email
+   */
+  async initiatePasswordResetByEmail(email: string): Promise<PasswordResetInitResponse> {
+    const data: PasswordResetInitRequest = { email };
+    const response = await this.request<PasswordResetInitResponse>(
+      '/api/idm/password-reset/initiate/email',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+    );
+    return response;
+  }
+
+  /**
+   * Initiate password reset by username (public endpoint)
+   * Sends a password reset token to the user's email associated with the username
+   */
+  async initiatePasswordResetByUsername(username: string): Promise<PasswordResetInitResponse> {
+    const data: PasswordResetInitRequest = { username };
+    const response = await this.request<PasswordResetInitResponse>(
+      '/api/idm/password-reset/initiate/username',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+    );
+    return response;
+  }
+
+  /**
+   * Reset password with token (public endpoint)
+   * Completes the password reset using the token from email
+   */
+  async resetPassword(data: PasswordResetRequest): Promise<PasswordResetResponse> {
+    const response = await this.request<PasswordResetResponse>('/api/idm/password-reset/reset', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  /**
+   * Get password policy requirements (public endpoint)
+   * Returns the password policy configuration for validation
+   */
+  async getPasswordPolicy(): Promise<PasswordPolicyResponse> {
+    const response = await this.request<PasswordPolicyResponse>('/api/idm/password-reset/policy', {
       method: 'GET',
     });
     return response;

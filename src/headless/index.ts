@@ -56,3 +56,19 @@ export type {
   UseEmailVerificationReturn,
   EmailVerificationOperation,
 } from './useEmailVerification';
+
+// Forgot Password hook
+export { useForgotPassword } from './useForgotPassword';
+export type {
+  UseForgotPasswordConfig,
+  UseForgotPasswordReturn,
+  ForgotPasswordMethod,
+} from './useForgotPassword';
+
+// Reset Password hook
+export { useResetPassword } from './useResetPassword';
+export type {
+  UseResetPasswordConfig,
+  UseResetPasswordReturn,
+  PasswordStrengthResult as ResetPasswordStrengthResult,
+} from './useResetPassword';

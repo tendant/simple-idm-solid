@@ -181,6 +181,96 @@ function ManualVerifyPage() {
 }
 ```
 
+## Password Reset
+
+### Forgot Password Form
+
+```tsx
+import { ForgotPasswordForm } from '@tendant/simple-idm-solid';
+
+function ForgotPasswordPage() {
+  return (
+    <ForgotPasswordForm
+      apiBaseUrl="http://localhost:4000"
+      method="email"
+      onSuccess={(response) => {
+        console.log('Password reset email sent!', response);
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+
+// With username instead
+function ForgotPasswordUsername() {
+  return (
+    <ForgotPasswordForm
+      apiBaseUrl="http://localhost:4000"
+      method="username"
+      onSuccess={(response) => {
+        console.log('Password reset email sent!', response);
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+
+// Allow both email or username
+function ForgotPasswordBoth() {
+  return (
+    <ForgotPasswordForm
+      apiBaseUrl="http://localhost:4000"
+      method="both"
+      onSuccess={(response) => {
+        console.log('Password reset email sent!', response);
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+```
+
+### Reset Password Form
+
+```tsx
+import { ResetPasswordForm } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+
+// Auto-populate token from URL
+function ResetPasswordPage() {
+  const [params] = useSearchParams();
+
+  return (
+    <ResetPasswordForm
+      apiBaseUrl="http://localhost:4000"
+      token={params.token}
+      autoLoadPolicy={true}
+      onSuccess={(response) => {
+        console.log('Password reset successfully!', response);
+        window.location.href = '/login';
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+
+// Manual token entry
+function ManualResetPasswordPage() {
+  return (
+    <ResetPasswordForm
+      apiBaseUrl="http://localhost:4000"
+      showTokenInput={true}
+      autoLoadPolicy={true}
+      onSuccess={(response) => {
+        console.log('Password reset successfully!', response);
+        window.location.href = '/login';
+      }}
+      loginUrl="/login"
+    />
+  );
+}
+```
+
 ## Using the Auth Hook
 
 ```tsx
@@ -615,6 +705,193 @@ function EmailStatusWidget() {
           </button>
         </div>
       </Show>
+    </div>
+  );
+}
+```
+
+### Custom Forgot Password with useForgotPassword
+
+```tsx
+import { useForgotPassword } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function MyForgotPassword() {
+  const forgotPassword = useForgotPassword({
+    client: 'http://localhost:4000',
+    method: 'email',
+    onSuccess: (response) => {
+      console.log('Reset email sent!', response);
+    },
+  });
+
+  return (
+    <div class="my-custom-design">
+      <h1>Forgot Password</h1>
+
+      <Show when={forgotPassword.success()}>
+        <div class="success-message">
+          <p>{forgotPassword.success()}</p>
+          <p>Check your email for a password reset link.</p>
+        </div>
+      </Show>
+
+      <Show when={!forgotPassword.success()}>
+        <form onSubmit={(e) => { e.preventDefault(); forgotPassword.submit(); }}>
+          <label>
+            {forgotPassword.method() === 'email' ? 'Email Address' : 'Username'}
+          </label>
+          <input
+            type={forgotPassword.method() === 'email' ? 'email' : 'text'}
+            value={forgotPassword.identifier()}
+            onInput={(e) => forgotPassword.setIdentifier(e.currentTarget.value)}
+            placeholder={forgotPassword.method() === 'email' ? 'you@example.com' : 'your-username'}
+          />
+
+          {forgotPassword.error() && (
+            <p class="error">{forgotPassword.error()}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={!forgotPassword.canSubmit() || forgotPassword.isLoading()}
+          >
+            {forgotPassword.isLoading() ? 'Sending...' : 'Send Reset Link'}
+          </button>
+        </form>
+      </Show>
+
+      <a href="/login">Back to Login</a>
+    </div>
+  );
+}
+```
+
+### Custom Reset Password with useResetPassword
+
+```tsx
+import { useResetPassword } from '@tendant/simple-idm-solid';
+import { useSearchParams } from '@solidjs/router';
+import { Show } from 'solid-js';
+
+function MyResetPassword() {
+  const [params] = useSearchParams();
+
+  const resetPassword = useResetPassword({
+    client: 'http://localhost:4000',
+    initialToken: params.token,
+    autoLoadPolicy: true,
+    onSuccess: (response) => {
+      console.log('Password reset!', response);
+      setTimeout(() => window.location.href = '/login', 2000);
+    },
+  });
+
+  return (
+    <div class="my-custom-design">
+      <h1>Reset Your Password</h1>
+
+      <Show when={resetPassword.success()}>
+        <div class="success-message">
+          <p>{resetPassword.success()}</p>
+          <p>Redirecting to login...</p>
+        </div>
+      </Show>
+
+      <Show when={!resetPassword.success()}>
+        <form onSubmit={(e) => { e.preventDefault(); resetPassword.submit(); }}>
+          {/* Token input if not in URL */}
+          <Show when={!params.token}>
+            <div>
+              <label>Reset Token</label>
+              <input
+                type="text"
+                value={resetPassword.token()}
+                onInput={(e) => resetPassword.setToken(e.currentTarget.value)}
+                placeholder="Paste token from email"
+              />
+            </div>
+          </Show>
+
+          {/* New password */}
+          <div>
+            <label>New Password</label>
+            <input
+              type="password"
+              value={resetPassword.newPassword()}
+              onInput={(e) => resetPassword.setNewPassword(e.currentTarget.value)}
+              placeholder="Enter new password"
+            />
+
+            {/* Password strength indicator */}
+            <Show when={resetPassword.newPassword().length > 0}>
+              <div class="strength-indicator">
+                <span class={resetPassword.passwordStrength().color}>
+                  Strength: {resetPassword.passwordStrength().label}
+                </span>
+                <div class="progress-bar">
+                  <div
+                    class="progress"
+                    style={{
+                      width: `${resetPassword.passwordStrength().percentage}%`,
+                      'background-color': resetPassword.passwordStrength().color,
+                    }}
+                  />
+                </div>
+              </div>
+            </Show>
+
+            {/* Password policy requirements */}
+            <Show when={resetPassword.policy()}>
+              <ul class="policy-requirements">
+                <li>Min {resetPassword.policy()!.min_length} characters</li>
+                <Show when={resetPassword.policy()!.require_uppercase}>
+                  <li>Include uppercase letter</li>
+                </Show>
+                <Show when={resetPassword.policy()!.require_lowercase}>
+                  <li>Include lowercase letter</li>
+                </Show>
+                <Show when={resetPassword.policy()!.require_digit}>
+                  <li>Include number</li>
+                </Show>
+                <Show when={resetPassword.policy()!.require_special_char}>
+                  <li>Include special character</li>
+                </Show>
+              </ul>
+            </Show>
+          </div>
+
+          {/* Confirm password */}
+          <div>
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              value={resetPassword.confirmPassword()}
+              onInput={(e) => resetPassword.setConfirmPassword(e.currentTarget.value)}
+              placeholder="Confirm new password"
+            />
+
+            <Show when={resetPassword.confirmPassword().length > 0}>
+              <p class={resetPassword.passwordsMatch() ? 'success' : 'error'}>
+                {resetPassword.passwordsMatch() ? '✓ Passwords match' : '✗ Passwords do not match'}
+              </p>
+            </Show>
+          </div>
+
+          {resetPassword.error() && (
+            <p class="error">{resetPassword.error()}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={!resetPassword.canSubmit() || resetPassword.isLoading()}
+          >
+            {resetPassword.isLoading() ? 'Resetting...' : 'Reset Password'}
+          </button>
+        </form>
+      </Show>
+
+      <a href="/login">Back to Login</a>
     </div>
   );
 }
