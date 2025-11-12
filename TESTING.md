@@ -519,3 +519,242 @@ Ready for:
 ---
 
 **Built with [Claude Code](https://claude.ai/code) via [Happy](https://happy.engineering)**
+
+---
+
+# Automated Testing
+
+This section describes the automated testing framework added to simple-idm-solid using Vitest and SolidJS Testing Library.
+
+## Setup
+
+### Installing Test Dependencies
+
+The following testing dependencies have been added to `package.json`:
+
+```json
+{
+  "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.8"
+  }
+}
+```
+
+Install them with:
+```bash
+npm install
+```
+
+## Running Automated Tests
+
+### Run all tests in watch mode
+```bash
+npm test
+```
+
+### Run tests once (CI mode)
+```bash
+npm run test:run
+```
+
+### Run tests with UI
+```bash
+npm run test:ui
+```
+
+Opens a web interface where you can:
+- View test results interactively
+- Filter and search tests
+- See code coverage
+- Debug failing tests
+
+### Run tests with coverage
+```bash
+npm run test:coverage
+```
+
+Generates coverage reports in multiple formats:
+- Terminal output
+- HTML report in `coverage/` directory
+- JSON report for CI integration
+- LCOV report for coverage tools
+
+## Test Structure
+
+Tests are co-located with source files using the `.test.ts` or `.test.tsx` extension:
+
+```
+src/
+  headless/
+    useLogin.ts
+    useLogin.test.ts       ← Unit tests for useLogin hook
+  components/
+    LoginForm.tsx
+    LoginForm.test.tsx     ← Component tests (to be added)
+  test/
+    setup.ts               ← Global test setup
+    utils.ts               ← Test utilities and mocks
+```
+
+## Current Test Coverage
+
+### ✅ Completed
+- **useLogin hook** - Comprehensive unit tests covering:
+  - Initial state
+  - Form state management
+  - Validation logic
+  - Successful login flow
+  - Error handling
+  - 2FA required flow
+  - Multiple users flow
+  - Auto-redirect functionality
+  - Reset and clear functions
+  - Callback invocations
+  - State transitions
+
+### 🔜 Planned
+- useSignup hook
+- useProfile hook
+- use2FA hook
+- useEmailVerification hook
+- usePasswordReset hook
+- useDeviceManagement hook
+- useExternalAuth hook
+- All styled components
+- API Client tests
+- Integration tests
+
+## Writing Tests
+
+### Example: Testing a Hook
+
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { renderHook } from '@solidjs/testing-library';
+import { useLogin } from './useLogin';
+import { createMockClient, mockLoginSuccess } from '~/test/utils';
+
+describe('useLogin', () => {
+  it('should handle successful login', async () => {
+    const mockClient = createMockClient();
+    const loginResponse = mockLoginSuccess();
+    mockClient.login = vi.fn().mockResolvedValue(loginResponse);
+
+    const { result } = renderHook(() => useLogin({ client: mockClient }));
+
+    result.setUsername('testuser');
+    result.setPassword('password123');
+    await result.submit();
+
+    expect(result.success()).toBe('Login successful!');
+    expect(mockClient.login).toHaveBeenCalledWith({
+      username: 'testuser',
+      password: 'password123',
+    });
+  });
+});
+```
+
+### Example: Testing a Component
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@solidjs/testing-library';
+import { LoginForm } from './LoginForm';
+
+describe('LoginForm', () => {
+  it('should render login form', () => {
+    render(() => <LoginForm baseUrl="http://localhost:4000" />);
+
+    expect(screen.getByLabelText('Username')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+  });
+});
+```
+
+## Test Utilities
+
+The `src/test/utils.ts` file provides helpful utilities:
+
+### Mock Client
+```typescript
+const mockClient = createMockClient();
+mockClient.login = vi.fn().mockResolvedValue(mockLoginSuccess());
+```
+
+### Mock Responses
+```typescript
+// Successful login
+const response = mockLoginSuccess({ id: '1', username: 'test' });
+
+// 2FA required
+const response = mock2FARequired('temp-token-123');
+
+// Multiple users
+const response = mockMultipleUsers([user1, user2]);
+
+// API error
+const error = mockApiError('Invalid credentials', 401);
+```
+
+### Async Utilities
+```typescript
+// Wait for next tick
+await waitForNextTick();
+
+// Wait for condition
+await waitFor(() => result.isLoading() === false);
+```
+
+## Coverage Goals
+
+The project aims for **80% code coverage** across all metrics:
+- Lines: 80%
+- Functions: 80%
+- Branches: 80%
+- Statements: 80%
+
+View current coverage:
+```bash
+npm run test:coverage
+```
+
+Then open `coverage/index.html` in your browser.
+
+## Continuous Integration
+
+In CI environments:
+```bash
+npm run test:run -- --coverage
+```
+
+## Debugging Tests
+
+### Using the UI
+```bash
+npm run test:ui
+```
+
+### Console Logging
+```typescript
+it('should do something', () => {
+  console.log('Current state:', result.username());
+  expect(result.username()).toBe('test');
+});
+```
+
+## Best Practices
+
+1. **Test behavior, not implementation**
+2. **Use descriptive test names**
+3. **Arrange-Act-Assert pattern**
+4. **Mock external dependencies**
+5. **Test edge cases and error states**
+6. **Keep tests isolated**

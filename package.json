@@ -20,7 +20,11 @@
     "build": "vite build && tsc --project tsconfig.build.json && npm run build:styles",
     "build:styles": "mkdir -p dist/styles && cp src/styles/default.css dist/styles/default.css",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "solidjs",
@@ -42,13 +46,20 @@
     "solid-js": "^1.8.0"
   },
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^22.10.10",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "jsdom": "^25.0.1",
     "solid-js": "^1.9.3",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.0",
-    "vite-plugin-solid": "^2.11.0"
+    "vite-plugin-solid": "^2.11.0",
+    "vitest": "^2.1.8"
   },
   "dependencies": {
     "@solidjs/router": "^0.15.3",
