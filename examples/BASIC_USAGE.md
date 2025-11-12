@@ -987,10 +987,27 @@ Configure custom API endpoint prefixes for API gateway routing:
 ```tsx
 import { SimpleIdmClient } from '@tendant/simple-idm-solid';
 
-// Default (v1) configuration
+// Simple: Set one prefix for all endpoints (RECOMMENDED)
 const client = new SimpleIdmClient({
   baseUrl: 'http://localhost:4000',
-  // Uses /api/v1/idm/* for all endpoints
+  basePrefix: '/api/v1/idm',
+  // All endpoints automatically use /api/v1/idm/* pattern
+});
+
+// Default (v1) configuration - no prefix needed
+const defaultClient = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  // Automatically uses /api/v1/idm/* for all endpoints
+});
+
+// Base prefix with selective overrides
+const advancedClient = new SimpleIdmClient({
+  baseUrl: 'http://localhost:4000',
+  basePrefix: '/api/v1/idm',
+  prefixes: {
+    // Override just 2FA to route to different service
+    twoFA: '/security-service/2fa',
+  },
 });
 
 // Version-based configuration
@@ -999,7 +1016,7 @@ const clientV2 = new SimpleIdmClient({
   apiVersion: 'v2', // All endpoints use /api/v2/idm/*
 });
 
-// Custom prefix configuration
+// Custom prefix configuration (fully manual)
 const customClient = new SimpleIdmClient({
   baseUrl: 'http://localhost:4000',
   prefixes: {
@@ -1020,7 +1037,7 @@ const legacyClient = new SimpleIdmClient({
 // API Gateway integration example
 const gatewayClient = new SimpleIdmClient({
   baseUrl: 'https://api.example.com',
-  apiVersion: 'v1',
+  basePrefix: '/gateway/idm',
   prefixes: {
     // Override specific route groups for microservices
     profile: '/user-service/profile',

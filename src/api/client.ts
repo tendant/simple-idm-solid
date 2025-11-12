@@ -43,6 +43,7 @@ import {
   type PrefixConfig,
   DEFAULT_V1_PREFIXES,
   LEGACY_PREFIXES,
+  buildPrefixesFromBase,
   buildPrefixesFromVersion,
   mergePrefixes,
   validatePrefixes,
@@ -58,23 +59,30 @@ export interface ApiClientConfig {
   /** Callback for general errors */
   onError?: (error: ApiError) => void;
   /**
+   * Base prefix for all endpoints
+   * Appends route segments to base path (e.g., '/api/v1/idm' + '/auth' = '/api/v1/idm/auth')
+   * Simplest way to configure all routes with one prefix
+   * @example '/api/v1/idm' → all routes use /api/v1/idm/* pattern
+   */
+  basePrefix?: string;
+  /**
    * API version for endpoint prefixes (e.g., 'v1', 'v2')
    * When specified, prefixes will be `/api/${version}/idm/*`
-   * Takes precedence over prefixes option
+   * Lower priority than basePrefix
    * @example 'v1' → '/api/v1/idm/auth', '/api/v1/idm/signup', etc.
    */
   apiVersion?: string;
   /**
    * Custom endpoint prefix configuration
    * Allows per-route-group prefix customization
-   * Lower priority than apiVersion
+   * Can be used to override specific routes when using basePrefix or apiVersion
    * @example { auth: '/custom/auth', signup: '/custom/signup' }
    */
   prefixes?: Partial<PrefixConfig>;
   /**
    * Use legacy prefix configuration (pre-v2.0.0)
    * Includes the inconsistent 2FA prefix `/idm/2fa/*`
-   * @deprecated Use apiVersion: 'v1' or custom prefixes instead
+   * @deprecated Use basePrefix, apiVersion, or custom prefixes instead
    */
   useLegacyPrefixes?: boolean;
 }
@@ -93,10 +101,11 @@ export class SimpleIdmClient {
     this.onError = config.onError;
 
     // Initialize endpoint prefixes based on configuration priority:
-    // 1. apiVersion (highest priority)
-    // 2. useLegacyPrefixes
-    // 3. custom prefixes
-    // 4. DEFAULT_V1_PREFIXES (default)
+    // 1. basePrefix (highest priority for simplicity)
+    // 2. apiVersion
+    // 3. useLegacyPrefixes
+    // 4. custom prefixes
+    // 5. DEFAULT_V1_PREFIXES (default)
     this.prefixes = this.initializePrefixes(config);
   }
 
@@ -106,20 +115,24 @@ export class SimpleIdmClient {
   private initializePrefixes(config: ApiClientConfig): PrefixConfig {
     let basePrefixes: PrefixConfig;
 
-    // Priority 1: API version
-    if (config.apiVersion) {
+    // Priority 1: Base prefix (simplest - one prefix for all routes)
+    if (config.basePrefix) {
+      basePrefixes = buildPrefixesFromBase(config.basePrefix);
+    }
+    // Priority 2: API version
+    else if (config.apiVersion) {
       basePrefixes = buildPrefixesFromVersion(config.apiVersion);
     }
-    // Priority 2: Legacy mode
+    // Priority 3: Legacy mode
     else if (config.useLegacyPrefixes) {
       basePrefixes = LEGACY_PREFIXES;
     }
-    // Priority 3: Default to v1
+    // Priority 4: Default to v1
     else {
       basePrefixes = DEFAULT_V1_PREFIXES;
     }
 
-    // Merge custom prefixes if provided
+    // Merge custom prefixes if provided (allows overriding specific routes)
     if (config.prefixes) {
       basePrefixes = mergePrefixes(config.prefixes, basePrefixes);
     }

@@ -60,6 +60,43 @@ export const LEGACY_PREFIXES: PrefixConfig = {
 };
 
 /**
+ * Build prefix configuration from a base path
+ *
+ * Appends route segments to the base path for each route group.
+ * This provides a simple way to configure all endpoints with one prefix.
+ *
+ * @param basePath - Base path for all endpoints (e.g., '/api/v1/idm')
+ * @returns Prefix configuration with base path + route segments
+ *
+ * @example
+ * buildPrefixesFromBase('/api/v1/idm')
+ * // Returns:
+ * // {
+ * //   auth: '/api/v1/idm/auth',
+ * //   signup: '/api/v1/idm/signup',
+ * //   profile: '/api/v1/idm/profile',
+ * //   twoFA: '/api/v1/idm/2fa',
+ * //   email: '/api/v1/idm/email',
+ * //   passwordReset: '/api/v1/idm/password-reset',
+ * //   oauth2: '/api/v1/idm/oauth2',
+ * // }
+ */
+export function buildPrefixesFromBase(basePath: string): PrefixConfig {
+  // Remove trailing slash if present
+  const base = basePath.replace(/\/$/, '');
+
+  return {
+    auth: `${base}/auth`,
+    signup: `${base}/signup`,
+    profile: `${base}/profile`,
+    twoFA: `${base}/2fa`,
+    email: `${base}/email`,
+    passwordReset: `${base}/password-reset`,
+    oauth2: `${base}/oauth2`,
+  };
+}
+
+/**
  * Build prefix configuration from API version
  *
  * @param version - API version (e.g., 'v1', 'v2')
