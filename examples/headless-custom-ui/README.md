@@ -22,6 +22,21 @@ Passwordless authentication with cooldown timer
 ### `useRegistration`
 User registration (password and passwordless modes)
 
+### `useProfile`
+Profile management (username, phone, password updates)
+
+### `use2FA`
+Two-factor authentication setup and management
+
+### `useEmailVerification`
+Email verification with token validation
+
+### `useForgotPassword`
+Password reset request (by email or username)
+
+### `useResetPassword`
+Password reset completion with strength validation
+
 ## Running This Example
 
 ```bash
@@ -268,6 +283,168 @@ function MinimalMagicLink() {
   );
 }
 ```
+
+### 4. Custom Forgot Password
+
+```tsx
+import { useForgotPassword } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function CustomForgotPassword() {
+  const forgotPassword = useForgotPassword({
+    client: 'http://localhost:4000',
+    method: 'email',
+    onSuccess: (response) => {
+      console.log('Reset email sent!', response);
+    },
+  });
+
+  return (
+    <div class="max-w-md mx-auto p-6">
+      <h1 class="text-2xl font-bold mb-4">Forgot Password</h1>
+
+      <Show when={forgotPassword.success()}>
+        <div class="p-4 bg-green-50 rounded">
+          <p class="text-green-800">{forgotPassword.success()}</p>
+        </div>
+      </Show>
+
+      <Show when={!forgotPassword.success()}>
+        <form onSubmit={(e) => { e.preventDefault(); forgotPassword.submit(); }}>
+          <input
+            type="email"
+            value={forgotPassword.identifier()}
+            onInput={(e) => forgotPassword.setIdentifier(e.currentTarget.value)}
+            placeholder="your@email.com"
+            class="w-full px-3 py-2 border rounded mb-3"
+          />
+
+          <button
+            type="submit"
+            disabled={!forgotPassword.canSubmit() || forgotPassword.isLoading()}
+            class="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            {forgotPassword.isLoading() ? 'Sending...' : 'Send Reset Link'}
+          </button>
+
+          {forgotPassword.error() && (
+            <p class="text-red-600 text-sm mt-2">{forgotPassword.error()}</p>
+          )}
+        </form>
+      </Show>
+    </div>
+  );
+}
+```
+
+### 5. Custom Reset Password with Strength Indicator
+
+```tsx
+import { useResetPassword } from '@tendant/simple-idm-solid';
+import { Show } from 'solid-js';
+
+function CustomResetPassword() {
+  // Get token from URL (e.g., ?token=abc123)
+  const token = new URLSearchParams(window.location.search).get('token') || undefined;
+
+  const resetPassword = useResetPassword({
+    client: 'http://localhost:4000',
+    initialToken: token,
+    autoLoadPolicy: true,
+    onSuccess: (response) => {
+      console.log('Password reset!', response);
+      window.location.href = '/login';
+    },
+  });
+
+  return (
+    <div class="max-w-md mx-auto p-6">
+      <h1 class="text-2xl font-bold mb-4">Reset Password</h1>
+
+      <Show when={resetPassword.success()}>
+        <div class="p-4 bg-green-50 rounded">
+          <p class="text-green-800">{resetPassword.success()}</p>
+        </div>
+      </Show>
+
+      <Show when={!resetPassword.success()}>
+        <form onSubmit={(e) => { e.preventDefault(); resetPassword.submit(); }}>
+          {/* New Password */}
+          <div class="mb-4">
+            <input
+              type="password"
+              value={resetPassword.newPassword()}
+              onInput={(e) => resetPassword.setNewPassword(e.currentTarget.value)}
+              placeholder="New password"
+              class="w-full px-3 py-2 border rounded"
+            />
+
+            {/* Password Strength Indicator */}
+            <Show when={resetPassword.newPassword().length > 0}>
+              <div class="mt-2">
+                <div class="flex justify-between text-xs mb-1">
+                  <span>Strength:</span>
+                  <span class={resetPassword.passwordStrength().color}>
+                    {resetPassword.passwordStrength().label}
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    class="h-2 rounded-full bg-blue-600 transition-all"
+                    style={{ width: `${resetPassword.passwordStrength().percentage}%` }}
+                  />
+                </div>
+              </div>
+            </Show>
+          </div>
+
+          {/* Confirm Password */}
+          <div class="mb-4">
+            <input
+              type="password"
+              value={resetPassword.confirmPassword()}
+              onInput={(e) => resetPassword.setConfirmPassword(e.currentTarget.value)}
+              placeholder="Confirm password"
+              class="w-full px-3 py-2 border rounded"
+            />
+
+            <Show when={resetPassword.confirmPassword().length > 0}>
+              <p class={`text-xs mt-1 ${resetPassword.passwordsMatch() ? 'text-green-600' : 'text-red-600'}`}>
+                {resetPassword.passwordsMatch() ? '✓ Match' : '✗ No match'}
+              </p>
+            </Show>
+          </div>
+
+          <button
+            type="submit"
+            disabled={!resetPassword.canSubmit() || resetPassword.isLoading()}
+            class="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            {resetPassword.isLoading() ? 'Resetting...' : 'Reset Password'}
+          </button>
+
+          {resetPassword.error() && (
+            <p class="text-red-600 text-sm mt-2">{resetPassword.error()}</p>
+          )}
+        </form>
+      </Show>
+    </div>
+  );
+}
+```
+
+## Example Files
+
+This directory includes complete example implementations:
+
+- **`src/CustomLogin.tsx`** - Custom login forms with useLogin
+- **`src/CustomProfile.tsx`** - Profile management with useProfile
+- **`src/Custom2FA.tsx`** - Two-factor authentication setup with use2FA
+- **`src/CustomEmailVerification.tsx`** - Email verification with useEmailVerification
+- **`src/CustomForgotPassword.tsx`** - Password reset request with useForgotPassword
+- **`src/CustomResetPassword.tsx`** - Password reset completion with useResetPassword
+
+Each file includes multiple UI variants demonstrating different approaches.
 
 ## Benefits of Headless Hooks
 
