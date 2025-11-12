@@ -120,7 +120,7 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
                 <Show when={props.showMagicLinkOption}>
                   <div>
                     <a
-                      href="/magic-link-login"
+                      href="/magic-link"
                       class="text-blue-600 hover:text-blue-500"
                     >
                       Login with magic link

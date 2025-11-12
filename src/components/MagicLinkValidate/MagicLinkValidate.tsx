@@ -110,7 +110,7 @@ export const MagicLinkValidate: Component<MagicLinkValidateProps> = (props) => {
                 <Button
                   variant="primary"
                   fullWidth
-                  onClick={() => (window.location.href = '/magic-link-login')}
+                  onClick={() => (window.location.href = '/magic-link')}
                 >
                   Request New Link
                 </Button>
