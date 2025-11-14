@@ -8,8 +8,12 @@ import type { VerifyEmailResponse } from '~/types/api';
 import type { ThemeConfig } from '~/types/theme';
 
 export interface EmailVerificationPageProps {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  apiBaseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted, uses relative URLs (assumes same origin)
+   * @default undefined (same origin)
+   */
+  apiBaseUrl?: string;
   /** Verification token from URL query parameter */
   token?: string;
   /** Auto-verify on mount if token is provided (default: true) */

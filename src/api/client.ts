@@ -50,8 +50,12 @@ import {
 } from './config';
 
 export interface ApiClientConfig {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  baseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted or empty, uses relative URLs (assumes same origin)
+   * @default '' (relative URLs)
+   */
+  baseUrl?: string;
   /** Custom fetch implementation (defaults to global fetch) */
   fetch?: typeof fetch;
   /** Callback when a 401 Unauthorized response is received */
@@ -95,7 +99,8 @@ export class SimpleIdmClient {
   private prefixes: PrefixConfig;
 
   constructor(config: ApiClientConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    // Use relative URLs if baseUrl is not provided (same origin)
+    this.baseUrl = config.baseUrl ? config.baseUrl.replace(/\/$/, '') : ''; // Remove trailing slash
     this.fetchFn = config.fetch || fetch.bind(globalThis);
     this.onUnauthorized = config.onUnauthorized;
     this.onError = config.onError;

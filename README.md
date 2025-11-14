@@ -73,19 +73,35 @@ yarn add @tendant/simple-idm-solid
 
 ## Quick Start
 
-### 1. Import Styles
+### Same Origin Setup (Recommended)
 
-Import the default styles in your app entry point:
-
-```tsx
-// App.tsx or index.tsx
-import '@tendant/simple-idm-solid/styles';
-```
-
-### 2. Use Components
+If your frontend and backend are served from the same domain (e.g., behind a reverse proxy), **you don't need to specify the API URL**:
 
 ```tsx
 import { LoginForm } from '@tendant/simple-idm-solid';
+import '@tendant/simple-idm-solid/styles';
+
+function LoginPage() {
+  return (
+    <LoginForm
+      onSuccess={(response) => {
+        console.log('Login successful!', response);
+        window.location.href = '/dashboard';
+      }}
+    />
+  );
+}
+```
+
+**No `apiBaseUrl` needed!** The library uses relative URLs automatically.
+
+### Different Origin Setup
+
+If your API is on a different domain/port (e.g., development):
+
+```tsx
+import { LoginForm } from '@tendant/simple-idm-solid';
+import '@tendant/simple-idm-solid/styles';
 
 function LoginPage() {
   return (

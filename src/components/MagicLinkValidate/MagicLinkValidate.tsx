@@ -6,8 +6,12 @@ import type { MagicLinkValidateResponse } from '~/types/api';
 import type { ThemeConfig } from '~/types/theme';
 
 export interface MagicLinkValidateProps {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  apiBaseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted, uses relative URLs (assumes same origin)
+   * @default undefined (same origin)
+   */
+  apiBaseUrl?: string;
   /** Magic link token from URL parameter */
   token: string;
   /** Callback called on successful validation */

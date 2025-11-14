@@ -8,6 +8,14 @@ export default defineConfig({
     solid(),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+     '/api/v1/idm' : {
+       target: 'http://localhost:4000',
+       changeOrigin: true
+     }
+    }
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),

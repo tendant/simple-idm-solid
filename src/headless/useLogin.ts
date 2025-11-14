@@ -17,8 +17,10 @@ export interface UseLoginConfig {
    * API client instance or base URL string
    * - If string: Creates a new SimpleIdmClient with the URL
    * - If SimpleIdmClient: Uses the provided instance
+   * - If omitted/empty: Uses same-origin (relative URLs)
+   * @default '' (same origin)
    */
-  client: SimpleIdmClient | string;
+  client?: SimpleIdmClient | string;
 
   /**
    * Callback invoked on successful login
@@ -97,6 +99,16 @@ export interface UseLoginReturn {
  * import { useLogin } from '@tendant/simple-idm-solid/headless';
  *
  * const MyLoginForm = () => {
+ *   // Option 1: Same origin (relative URLs) - simplest
+ *   const login = useLogin({
+ *     onSuccess: (response) => {
+ *       if (response.status === 'success') {
+ *         console.log('Logged in!', response.user);
+ *       }
+ *     },
+ *   });
+ *
+ *   // Option 2: Different origin (absolute URLs)
  *   const login = useLogin({
  *     client: 'http://localhost:4000',
  *     onSuccess: (response) => {
@@ -147,15 +159,15 @@ export function useLogin(config: UseLoginConfig): UseLoginReturn {
 
   // Create or use provided API client
   const client =
-    typeof config.client === 'string'
-      ? new SimpleIdmClient({
-          baseUrl: config.client,
+    config.client instanceof SimpleIdmClient
+      ? config.client
+      : new SimpleIdmClient({
+          baseUrl: config.client || '', // Empty string = same origin (relative URLs)
           onError: (err) => {
             setError(err.message);
             config.onError?.(err.message);
           },
-        })
-      : config.client;
+        });
 
   // Validation
   const canSubmit = () => {

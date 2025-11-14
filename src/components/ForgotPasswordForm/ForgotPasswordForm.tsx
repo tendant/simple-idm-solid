@@ -8,8 +8,12 @@ import type { PasswordResetInitResponse } from '~/types/api';
 import type { ThemeConfig } from '~/types/theme';
 
 export interface ForgotPasswordFormProps {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  apiBaseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted, uses relative URLs (assumes same origin)
+   * @default undefined (same origin)
+   */
+  apiBaseUrl?: string;
   /** Method for password reset: 'email', 'username', or 'both' (default: 'email') */
   method?: 'email' | 'username' | 'both';
   /** Callback called on successful password reset initiation */

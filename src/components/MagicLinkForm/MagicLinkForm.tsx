@@ -7,8 +7,12 @@ import { Alert } from '~/primitives/Alert';
 import type { ThemeConfig } from '~/types/theme';
 
 export interface MagicLinkFormProps {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  apiBaseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted, uses relative URLs (assumes same origin)
+   * @default undefined (same origin)
+   */
+  apiBaseUrl?: string;
   /** Callback called after magic link is sent successfully */
   onSuccess?: () => void;
   /** Callback called on error */

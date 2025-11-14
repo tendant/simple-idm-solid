@@ -8,8 +8,12 @@ import type { PasswordResetResponse } from '~/types/api';
 import type { ThemeConfig } from '~/types/theme';
 
 export interface ResetPasswordFormProps {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  apiBaseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted, uses relative URLs (assumes same origin)
+   * @default undefined (same origin)
+   */
+  apiBaseUrl?: string;
   /** Initial token from URL query parameter */
   token?: string;
   /** Show token input field (default: false if token provided, true otherwise) */

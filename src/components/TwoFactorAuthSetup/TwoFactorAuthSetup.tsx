@@ -9,8 +9,12 @@ import type { ProfileUpdateResponse, Setup2FAResponse } from '~/types/api';
 import type { ThemeConfig } from '~/types/theme';
 
 export interface TwoFactorAuthSetupProps {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  apiBaseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted, uses relative URLs (assumes same origin)
+   * @default undefined (same origin)
+   */
+  apiBaseUrl?: string;
   /** Callback called on successful 2FA operation */
   onSuccess?: (
     response: ProfileUpdateResponse | Setup2FAResponse,

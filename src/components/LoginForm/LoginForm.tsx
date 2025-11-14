@@ -8,8 +8,12 @@ import type { LoginResponse } from '~/types/api';
 import type { ThemeConfig } from '~/types/theme';
 
 export interface LoginFormProps {
-  /** Base URL of the simple-idm backend (e.g., http://localhost:4000) */
-  apiBaseUrl: string;
+  /**
+   * Base URL of the simple-idm backend (e.g., http://localhost:4000)
+   * If omitted, uses relative URLs (assumes same origin)
+   * @default undefined (same origin)
+   */
+  apiBaseUrl?: string;
   /** Callback called on successful login */
   onSuccess?: (response: LoginResponse) => void;
   /** Callback called on error */
