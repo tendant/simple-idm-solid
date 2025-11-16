@@ -244,10 +244,11 @@ export class SimpleIdmClient {
    * Requires valid access token in HTTP-only cookie
    */
   async getCurrentUser(): Promise<UserInfo> {
-    const response = await this.request<UserInfo>(`${this.prefixes.oauth2}/userinfo`, {
+    // Get user info from standard OIDC userinfo endpoint
+    const userInfo = await this.request<UserInfo>(`${this.prefixes.oauth2}/userinfo`, {
       method: 'GET',
     });
-    return response;
+    return userInfo;
   }
 
   // ============================================================================

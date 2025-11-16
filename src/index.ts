@@ -144,6 +144,7 @@ export type {
   PasswordSignupRequest,
   SignupResponse,
   UserInfo,
+  IdmUser,
   TokenRefreshResponse,
   ApiError,
   TwoFactorMethod,

@@ -53,6 +53,7 @@ const login = useLogin({ client: 'http://localhost:4000' });
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Type System Guide](#type-system-guide) ⭐
 - [Styled Components](#styled-components)
 - [Headless Hooks](#headless-hooks)
 - [API Client](#api-client)
@@ -94,6 +95,22 @@ function LoginPage() {
 ```
 
 **No `apiBaseUrl` needed!** The library uses relative URLs automatically.
+
+## Type System Guide
+
+⭐ **Important**: This library uses two distinct type systems - OIDC standard types and simple-idm custom types.
+
+**Quick Reference:**
+- `UserInfo` (OIDC standard) - From `/oauth2/userinfo` endpoint
+  ```typescript
+  { sub, email, name, preferred_username }
+  ```
+- `IdmUser` (simple-idm custom) - From login and custom endpoints
+  ```typescript
+  { id, email, name, roles }
+  ```
+
+**📖 See [TYPE_SYSTEM.md](./TYPE_SYSTEM.md) for complete guide**
 
 ### Different Origin Setup
 

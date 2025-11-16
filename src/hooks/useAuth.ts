@@ -70,8 +70,8 @@ export function useAuth(options: UseAuthOptions): UseAuthReturn {
       const response = await options.client.login(credentials);
 
       // Handle successful login
-      if (response.status === 'success' && response.user_uuid) {
-        // Get full user info
+      if (response.status === 'success') {
+        // Get full user info from OIDC userinfo endpoint
         const userInfo = await options.client.getCurrentUser();
         setUser(userInfo);
         setIsAuthenticated(true);

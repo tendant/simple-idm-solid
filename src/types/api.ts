@@ -26,8 +26,8 @@ export interface LoginResponse {
   message?: string;
   /** Available 2FA methods when status is '2fa_required' */
   two_factor_methods?: TwoFactorMethod[];
-  /** Multiple users when status is 'multiple_users' */
-  users?: UserInfo[];
+  /** Multiple users when status is 'multiple_users' - uses IdmUser format from login API */
+  users?: IdmUser[];
 }
 
 export interface TwoFactorMethod {
@@ -166,16 +166,35 @@ export interface SignupResponse {
 // User Types
 // ============================================================================
 
+/**
+ * UserInfo follows standard OIDC claims
+ * Returned from /oauth2/userinfo endpoint
+ * https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+ */
 export interface UserInfo {
-  user_uuid: string;
-  username: string;
-  email?: string;
-  fullname?: string;
-  first_name?: string;
-  last_name?: string;
-  roles?: string[];
-  created_at?: string;
-  last_modified_at?: string;
+  sub: string;                    // Subject - unique user identifier
+  preferred_username?: string;     // Preferred username
+  email?: string;                  // Email address
+  email_verified?: boolean;        // Email verification status
+  name?: string;                   // Full name
+  given_name?: string;             // First name
+  family_name?: string;            // Last name
+  picture?: string;                // Profile picture URL
+  groups?: string[];               // User groups/roles
+  updated_at?: number;             // Last update timestamp
+}
+
+/**
+ * Simple IDM User format
+ * Returned from login and other custom IDM endpoints
+ * This is NOT OIDC standard - it's simple-idm specific
+ */
+export interface IdmUser {
+  id: string;                      // User ID
+  email: string;                   // Email address
+  name: string;                    // Display name
+  role: string;                    // Primary role (deprecated)
+  roles: string[];                 // User roles
 }
 
 // ============================================================================
