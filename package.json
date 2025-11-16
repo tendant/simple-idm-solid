@@ -24,7 +24,10 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run typecheck && npm run test:run && npm run build",
+    "publish:dry-run": "npm pack --dry-run",
+    "publish:public": "npm publish --access public"
   },
   "keywords": [
     "solidjs",
@@ -41,6 +44,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/tendant/simple-idm-solid.git"
+  },
+  "homepage": "https://github.com/tendant/simple-idm-solid#readme",
+  "bugs": {
+    "url": "https://github.com/tendant/simple-idm-solid/issues"
   },
   "peerDependencies": {
     "solid-js": "^1.8.0"

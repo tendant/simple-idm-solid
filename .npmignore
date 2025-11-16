@@ -1,0 +1,64 @@
+# Source files
+src/
+*.ts
+*.tsx
+!dist/**/*.d.ts
+!dist/**/*.d.ts.map
+
+# Config files
+tsconfig.json
+tsconfig.build.json
+vite.config.ts
+vitest.config.ts
+tailwind.config.js
+
+# Development documentation (keep main docs)
+IMPLEMENTATION_PLAN.md
+TESTING_PASSWORD_RESET.md
+PUBLISHING_REVIEW.md
+
+# Development files
+.vscode/
+.idea/
+.claude/
+*.log
+.DS_Store
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+
+# Testing
+coverage/
+.nyc_output/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Build temp
+*.tsbuildinfo
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Package manager
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Misc
+.DS_Store
+Thumbs.db
+*.tmp
