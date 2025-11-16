@@ -1,4 +1,4 @@
-import { Component, ParentComponent, Show } from 'solid-js';
+import { Component, ParentComponent, Show, createEffect } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import type { UseAuthReturn } from '../hooks/useAuth';
 
@@ -75,20 +75,24 @@ export const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
   const navigate = useNavigate();
   const loginPath = props.loginPath || '/login';
 
-  // Check authentication on mount
-  if (!props.auth.isAuthenticated()) {
-    // Redirect to login page, preserving the current URL to return after login
-    const currentPath = window.location.pathname + window.location.search;
-    navigate(`${loginPath}?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
-    return null;
-  }
+  // Check authentication and redirect if needed
+  createEffect(() => {
+    if (!props.auth.isAuthenticated()) {
+      // Redirect to login page, preserving the current URL to return after login
+      const currentPath = window.location.pathname + window.location.search;
+      navigate(`${loginPath}?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+    }
+  });
 
   // If unauthorizedComponent is provided, show it instead of children
-  if (props.unauthorizedComponent && !props.auth.isAuthenticated()) {
-    return <>{props.unauthorizedComponent({})}</>;
-  }
-
-  return <>{props.children}</>;
+  return (
+    <Show
+      when={props.auth.isAuthenticated()}
+      fallback={props.unauthorizedComponent ? <>{props.unauthorizedComponent({})}</> : null}
+    >
+      {props.children}
+    </Show>
+  );
 };
 
 /**
@@ -125,6 +129,14 @@ export const ProtectedRouteWithLoading: ParentComponent<ProtectedRouteProps> = (
   const loginPath = props.loginPath || '/login';
   const LoadingComponent = props.loadingComponent || DefaultLoadingComponent;
 
+  // Check authentication and redirect if needed (after loading completes)
+  createEffect(() => {
+    if (!props.auth.isLoading() && !props.auth.isAuthenticated()) {
+      const currentPath = window.location.pathname + window.location.search;
+      navigate(`${loginPath}?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+    }
+  });
+
   // Show loading state while checking authentication
   return (
     <Show
@@ -133,19 +145,7 @@ export const ProtectedRouteWithLoading: ParentComponent<ProtectedRouteProps> = (
     >
       <Show
         when={props.auth.isAuthenticated()}
-        fallback={
-          // If unauthorizedComponent is provided, show it
-          props.unauthorizedComponent ? (
-            <>{props.unauthorizedComponent({})}</>
-          ) : (
-            // Otherwise, redirect to login
-            (() => {
-              const currentPath = window.location.pathname + window.location.search;
-              navigate(`${loginPath}?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
-              return null;
-            })()
-          )
-        }
+        fallback={props.unauthorizedComponent ? <>{props.unauthorizedComponent({})}</> : null}
       >
         {props.children}
       </Show>
