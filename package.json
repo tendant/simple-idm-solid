@@ -27,7 +27,8 @@
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run typecheck && npm run build",
     "publish:dry-run": "npm pack --dry-run",
-    "publish:public": "npm publish --access public"
+    "publish:public": "npm publish --access public",
+    "release": "./release.sh"
   },
   "keywords": [
     "solidjs",
