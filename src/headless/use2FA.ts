@@ -138,54 +138,31 @@ export interface Use2FAReturn {
  * Headless hook for two-factor authentication management
  *
  * @example Setup TOTP 2FA
- * ```tsx
+ * ```typescript
  * import { use2FA } from '@tendant/simple-idm-solid/headless';
- * import { Show } from 'solid-js';
  *
- * const My2FASetup = () => {
- *   const twoFA = use2FA({
- *     client: 'http://localhost:4000',
- *     onSuccess: (response, operation) => {
- *       console.log(`2FA ${operation} successful!`, response);
- *     },
- *   });
+ * const twoFA = use2FA({
+ *   client: 'http://localhost:4000',
+ *   onSuccess: (response, operation) => {
+ *     console.log(`2FA ${operation} successful!`, response);
+ *   },
+ * });
  *
- *   return (
- *     <div>
- *       {/* Step 1: Setup TOTP */}
- *       <Show when={!twoFA.setupData()}>
- *         <button onClick={() => twoFA.setupTOTP()}>
- *           Setup Authenticator App
- *         </button>
- *       </Show>
+ * // Setup TOTP
+ * await twoFA.setupTOTP();
  *
- *       {/* Step 2: Show QR Code */}
- *       <Show when={twoFA.qrCode()}>
- *         <img src={twoFA.qrCode()!} alt="TOTP QR Code" />
- *         <p>Secret: {twoFA.secret()}</p>
- *       </Show>
+ * // QR code available at: twoFA.qrCode()
+ * // Secret available at: twoFA.secret()
  *
- *       {/* Step 3: Verify and Enable */}
- *       <Show when={twoFA.setupData()}>
- *         <input
- *           value={twoFA.code()}
- *           onInput={(e) => twoFA.setCode(e.currentTarget.value)}
- *           placeholder="Enter code from app"
- *         />
- *         <button
- *           onClick={() => twoFA.enable()}
- *           disabled={!twoFA.canEnable()}
- *         >
- *           Enable 2FA
- *         </button>
- *       </Show>
- *     </div>
- *   );
- * };
+ * // User enters code from authenticator app
+ * twoFA.setCode('123456');
+ *
+ * // Enable 2FA
+ * await twoFA.enable();
  * ```
  *
  * @example SMS 2FA
- * ```tsx
+ * ```typescript
  * const twoFA = use2FA({
  *   client: 'http://localhost:4000',
  * });
@@ -203,7 +180,7 @@ export interface Use2FAReturn {
  * ```
  *
  * @example Check status and disable
- * ```tsx
+ * ```typescript
  * const twoFA = use2FA({
  *   client: 'http://localhost:4000',
  * });
