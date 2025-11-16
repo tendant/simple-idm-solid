@@ -1,36 +1,40 @@
 import { SimpleIdmClient } from '~/api/client';
+import type { ApiClientConfig } from '~/api/client';
 import type { LoginResponse, ApiError } from '~/types/api';
 
 /**
  * Creates a mock SimpleIdmClient for testing
  */
-export function createMockClient(overrides?: Partial<SimpleIdmClient>): SimpleIdmClient {
-  const mockClient = {
-    login: vi.fn(),
-    logout: vi.fn(),
-    refreshToken: vi.fn(),
-    getCurrentUser: vi.fn(),
-    updateProfile: vi.fn(),
-    verifyEmail: vi.fn(),
-    resendVerificationEmail: vi.fn(),
-    requestPasswordReset: vi.fn(),
-    resetPassword: vi.fn(),
-    verify2FA: vi.fn(),
-    enable2FA: vi.fn(),
-    disable2FA: vi.fn(),
-    generate2FASecret: vi.fn(),
-    signup: vi.fn(),
-    getUserDevices: vi.fn(),
-    removeDevice: vi.fn(),
-    getLoginSessions: vi.fn(),
-    revokeSession: vi.fn(),
-    revokeAllSessions: vi.fn(),
-    authenticateWithProvider: vi.fn(),
-    handleProviderCallback: vi.fn(),
-    ...overrides,
-  } as unknown as SimpleIdmClient;
+export function createMockClient(configOverrides?: Partial<ApiClientConfig>): SimpleIdmClient {
+  const config: ApiClientConfig = {
+    baseUrl: 'http://localhost:4000',
+    basePrefix: '/api/v1/idm',
+    ...configOverrides,
+  };
 
-  return mockClient;
+  const client = new SimpleIdmClient(config);
+
+  // Mock all the methods that exist on the actual client
+  vi.spyOn(client, 'login');
+  vi.spyOn(client, 'logout');
+  vi.spyOn(client, 'refreshToken');
+  vi.spyOn(client, 'getCurrentUser');
+  vi.spyOn(client, 'updateUsername');
+  vi.spyOn(client, 'updatePhone');
+  vi.spyOn(client, 'updatePassword');
+  vi.spyOn(client, 'verifyEmail');
+  vi.spyOn(client, 'resendVerificationEmail');
+  vi.spyOn(client, 'getVerificationStatus');
+  vi.spyOn(client, 'initiatePasswordResetByEmail');
+  vi.spyOn(client, 'initiatePasswordResetByUsername');
+  vi.spyOn(client, 'resetPassword');
+  vi.spyOn(client, 'getPasswordPolicy');
+  vi.spyOn(client, 'requestMagicLink');
+  vi.spyOn(client, 'validateMagicLink');
+  vi.spyOn(client, 'signupPasswordless');
+  vi.spyOn(client, 'signupWithPassword');
+
+  return client;
 }
 
 /**
