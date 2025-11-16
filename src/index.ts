@@ -40,6 +40,9 @@ export type { ForgotPasswordFormProps } from './components/ForgotPasswordForm';
 export { ResetPasswordForm } from './components/ResetPasswordForm';
 export type { ResetPasswordFormProps } from './components/ResetPasswordForm';
 
+export { ProtectedRoute, ProtectedRouteWithLoading } from './components/ProtectedRoute';
+export type { ProtectedRouteProps } from './components/ProtectedRoute';
+
 // ============================================================================
 // Primitives (optional export for customization)
 // ============================================================================
