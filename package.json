@@ -1,6 +1,6 @@
 {
   "name": "@tendant/simple-idm-solid",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "SolidJS authentication components for simple-idm",
   "type": "module",
   "main": "./dist/index.js",
