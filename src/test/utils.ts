@@ -1,6 +1,7 @@
 import { SimpleIdmClient } from '~/api/client';
 import type { ApiClientConfig } from '~/api/client';
 import type { LoginResponse, ApiError } from '~/types/api';
+import { ApiException } from '~/types/api';
 
 /**
  * Creates a mock SimpleIdmClient for testing
@@ -80,12 +81,12 @@ export function mockMultipleUsers(users = [
 /**
  * Mock API error
  */
-export function mockApiError(message = 'Invalid credentials', status = 401): ApiError {
-  return {
+export function mockApiError(message = 'Invalid credentials', status = 401): ApiException {
+  return new ApiException(status, {
     message,
     status,
     code: 'UNAUTHORIZED',
-  };
+  });
 }
 
 /**

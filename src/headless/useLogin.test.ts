@@ -230,10 +230,12 @@ describe('useLogin', () => {
       result.setPassword('password123');
 
       const firstSubmit = result.submit();
-      const secondSubmit = result.submit();
+      const secondSubmit = result.submit(); // Returns undefined (early return)
 
-      await firstSubmit;
-      await secondSubmit;
+      // Advance timers to resolve the delayed promise
+      await vi.runAllTimersAsync();
+
+      // Don't await secondSubmit - it returns undefined immediately
 
       // Should only be called once, not twice
       expect(mockClient.login).toHaveBeenCalledTimes(1);
