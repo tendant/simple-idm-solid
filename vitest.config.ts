@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import solidPlugin from 'vite-plugin-solid';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [solidPlugin()],
@@ -30,6 +31,9 @@ export default defineConfig({
     }
   },
   resolve: {
+    alias: {
+      '~': resolve(__dirname, './src'),
+    },
     conditions: ['development', 'browser']
   }
 });
