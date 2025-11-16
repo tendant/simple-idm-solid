@@ -38,7 +38,7 @@ export interface Use2FAConfig {
    * - If string: Creates a new SimpleIdmClient with the URL
    * - If SimpleIdmClient: Uses the provided instance
    */
-  client: SimpleIdmClient | string;
+  client?: SimpleIdmClient | string;
 
   /**
    * Callback invoked on successful 2FA operation
@@ -216,9 +216,10 @@ export function use2FA(config: Use2FAConfig): Use2FAReturn {
 
   // Create or use provided API client
   const client =
-    typeof config.client === 'string'
-      ? new SimpleIdmClient({
-          baseUrl: config.client,
+    config.client instanceof SimpleIdmClient
+      ? config.client
+      : new SimpleIdmClient({
+          baseUrl: config.client || '', // Empty string = same origin
           onError: (err) => {
             const operation = currentOperation();
             if (operation) {
@@ -226,8 +227,7 @@ export function use2FA(config: Use2FAConfig): Use2FAReturn {
               config.onError?.(err.message, operation);
             }
           },
-        })
-      : config.client;
+        });
 
   // Derived state
   const isEnabled = createMemo(() => status()?.enabled ?? false);

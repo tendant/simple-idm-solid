@@ -26,8 +26,10 @@ export interface UseEmailVerificationConfig {
    * API client instance or base URL string
    * - If string: Creates a new SimpleIdmClient with the URL
    * - If SimpleIdmClient: Uses the provided instance
+   * - If omitted/empty: Uses same-origin (relative URLs)
+   * @default undefined (same origin)
    */
-  client: SimpleIdmClient | string;
+  client?: SimpleIdmClient | string;
 
   /**
    * Callback invoked on successful verification operation
@@ -221,9 +223,10 @@ export function useEmailVerification(
 
   // Create or use provided API client
   const client =
-    typeof config.client === 'string'
-      ? new SimpleIdmClient({
-          baseUrl: config.client,
+    config.client instanceof SimpleIdmClient
+      ? config.client
+      : new SimpleIdmClient({
+          baseUrl: config.client || '', // Empty string = same origin
           onError: (err) => {
             const operation = currentOperation();
             if (operation) {
@@ -231,8 +234,7 @@ export function useEmailVerification(
               config.onError?.(err.message, operation);
             }
           },
-        })
-      : config.client;
+        });
 
   // Derived state
   const isVerified = () => status()?.email_verified ?? false;

@@ -1,4 +1,4 @@
-import { Component, Show, onMount } from 'solid-js';
+import { Component, Show } from 'solid-js';
 import { useEmailVerification } from '~/headless/useEmailVerification';
 import { Input } from '~/primitives/Input';
 import { Button } from '~/primitives/Button';

@@ -28,7 +28,7 @@ export interface UseRegistrationConfig {
    * - If string: Creates a new SimpleIdmClient with the URL
    * - If SimpleIdmClient: Uses the provided instance
    */
-  client: SimpleIdmClient | string;
+  client?: SimpleIdmClient | string;
 
   /**
    * Registration mode: password or passwordless
@@ -208,15 +208,15 @@ export function useRegistration(
 
   // Create or use provided API client
   const client =
-    typeof config.client === 'string'
-      ? new SimpleIdmClient({
-          baseUrl: config.client,
+    config.client instanceof SimpleIdmClient
+      ? config.client
+      : new SimpleIdmClient({
+          baseUrl: config.client || '', // Empty string = same origin
           onError: (err) => {
             setError(err.message);
             config.onError?.(err.message);
           },
-        })
-      : config.client;
+        });
 
   // Password strength calculation
   const passwordStrength = createMemo((): PasswordStrengthResult => {

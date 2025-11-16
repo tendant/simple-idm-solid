@@ -78,7 +78,7 @@ export interface UseResetPasswordConfig {
    * SimpleIdmClient instance or base URL string
    * If a string is provided, a new client will be created
    */
-  client: SimpleIdmClient | string;
+  client?: SimpleIdmClient | string;
 
   /**
    * Initial token from URL query parameter
@@ -233,9 +233,9 @@ function calculatePasswordStrength(
 export function useResetPassword(config: UseResetPasswordConfig): UseResetPasswordReturn {
   // Create or use existing client
   const client =
-    typeof config.client === 'string'
-      ? new SimpleIdmClient({ baseUrl: config.client })
-      : config.client;
+    config.client instanceof SimpleIdmClient
+      ? config.client
+      : new SimpleIdmClient({ baseUrl: config.client || '' }); // Empty = same origin
 
   const autoLoadPolicy = config.autoLoadPolicy ?? true;
   const minLength = config.minPasswordLength || 8;

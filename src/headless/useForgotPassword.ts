@@ -55,7 +55,7 @@ export interface UseForgotPasswordConfig {
    * SimpleIdmClient instance or base URL string
    * If a string is provided, a new client will be created
    */
-  client: SimpleIdmClient | string;
+  client?: SimpleIdmClient | string;
 
   /**
    * Method for password reset: 'email', 'username', or 'both'
@@ -114,9 +114,9 @@ export interface UseForgotPasswordReturn {
 export function useForgotPassword(config: UseForgotPasswordConfig): UseForgotPasswordReturn {
   // Create or use existing client
   const client =
-    typeof config.client === 'string'
-      ? new SimpleIdmClient({ baseUrl: config.client })
-      : config.client;
+    config.client instanceof SimpleIdmClient
+      ? config.client
+      : new SimpleIdmClient({ baseUrl: config.client || '' }); // Empty = same origin
 
   const method = config.method || 'email';
 
