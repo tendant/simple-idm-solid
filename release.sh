@@ -95,15 +95,12 @@ esac
 
 # Bump version
 print_info "\n📦 Bumping version..."
-echo "DEBUG: VERSION_CHOICE='$VERSION_CHOICE'"
-echo "DEBUG: VERSION_TYPE='$VERSION_TYPE'"
-echo "DEBUG: CUSTOM_VERSION='$CUSTOM_VERSION'"
 if [[ $VERSION_CHOICE == "4" ]]; then
-    echo "DEBUG: Running: npm version '$CUSTOM_VERSION' --no-git-tag-version"
+    # Custom version - use npm version directly
     npm version "$CUSTOM_VERSION" --no-git-tag-version
 else
-    echo "DEBUG: Running: npm version '$VERSION_TYPE' --no-git-tag-version"
-    npm version "$VERSION_TYPE" --no-git-tag-version
+    # Use custom version bumper to avoid npm version bugs
+    node bump-version.cjs "$VERSION_TYPE"
 fi
 
 NEW_VERSION=$(node -p "require('./package.json').version")
