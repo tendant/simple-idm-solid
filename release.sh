@@ -58,12 +58,18 @@ if [[ "$CURRENT_BRANCH" != "main" ]]; then
     fi
 fi
 
+# Calculate preview versions manually (npm version --dry-run has a bug that modifies files)
+IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+PREVIEW_PATCH="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+PREVIEW_MINOR="v${MAJOR}.$((MINOR + 1)).0"
+PREVIEW_MAJOR="v$((MAJOR + 1)).0.0"
+
 # Ask for version bump type
 echo ""
 print_info "Select version bump type:"
-echo "1) patch (bug fixes)         - $CURRENT_VERSION -> $(npm version patch --no-git-tag-version --dry-run 2>/dev/null | tail -1)"
-echo "2) minor (new features)      - $CURRENT_VERSION -> $(npm version minor --no-git-tag-version --dry-run 2>/dev/null | tail -1)"
-echo "3) major (breaking changes)  - $CURRENT_VERSION -> $(npm version major --no-git-tag-version --dry-run 2>/dev/null | tail -1)"
+echo "1) patch (bug fixes)         - $CURRENT_VERSION -> $PREVIEW_PATCH"
+echo "2) minor (new features)      - $CURRENT_VERSION -> $PREVIEW_MINOR"
+echo "3) major (breaking changes)  - $CURRENT_VERSION -> $PREVIEW_MAJOR"
 echo "4) Custom version"
 echo "5) Cancel"
 echo ""
