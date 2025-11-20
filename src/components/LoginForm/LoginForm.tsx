@@ -127,7 +127,7 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
                       href="/magic-link"
                       class="text-blue-600 hover:text-blue-500"
                     >
-                      Login with magic link
+                      Use magic link instead
                     </a>
                   </div>
                 </Show>

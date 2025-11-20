@@ -46,7 +46,7 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
           Magic Link Login
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-          Enter your email or username to receive a login link
+          We'll email you a link to sign in
         </p>
       </div>
 
@@ -63,8 +63,7 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
               <div>
                 <p class="font-medium">{magicLink.success()}</p>
                 <p class="mt-2 text-sm">
-                  The link will expire in 1 hour. If you don't receive the email, check
-                  your spam folder or try again.
+                  Check your email. The link expires in 1 hour.
                 </p>
               </div>
             </Alert>
