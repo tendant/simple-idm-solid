@@ -20,6 +20,8 @@ export interface PasswordlessRegistrationFormProps {
   onError?: (error: string) => void;
   /** Require invitation code for registration */
   requireInvitationCode?: boolean;
+  /** Show invitation code field (default: false) */
+  showInvitationCode?: boolean;
   /** Show link to login page */
   showLoginLink?: boolean;
   /** Redirect URL after registration */
@@ -125,20 +127,22 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
             </div>
 
             {/* Invitation Code Field */}
-            <div>
-              <Label for="invitation_code" required={props.requireInvitationCode}>
-                Invitation Code {!props.requireInvitationCode && '(Optional)'}
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="invitation_code"
-                  name="invitation_code"
-                  type="text"
-                  value={registration.invitationCode()}
-                  onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
-                />
+            <Show when={props.showInvitationCode === true}>
+              <div>
+                <Label for="invitation_code" required={props.requireInvitationCode}>
+                  Invitation Code {!props.requireInvitationCode && '(Optional)'}
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="invitation_code"
+                    name="invitation_code"
+                    type="text"
+                    value={registration.invitationCode()}
+                    onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
+                  />
+                </div>
               </div>
-            </div>
+            </Show>
 
             {/* Submit Button */}
             <div>
