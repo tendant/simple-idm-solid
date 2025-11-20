@@ -20,6 +20,8 @@ export interface PasswordRegistrationFormProps {
   onError?: (error: string) => void;
   /** Require invitation code for registration */
   requireInvitationCode?: boolean;
+  /** Show invitation code field (default: false) */
+  showInvitationCode?: boolean;
   /** Show link to login page */
   showLoginLink?: boolean;
   /** Redirect URL after registration */
@@ -49,12 +51,15 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
   };
 
   return (
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
+    <div class="w-full">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-extrabold text-gray-900">Create your account</h2>
+        <p class="mt-2 text-sm text-gray-600">
+          Sign up with a password
+        </p>
       </div>
 
-      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="w-full">
         <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
           <Show when={registration.error()}>
             <Alert variant="error" class="mb-6">
@@ -177,20 +182,22 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
             </div>
 
             {/* Invitation Code Field */}
-            <div>
-              <Label for="invitation_code" required={props.requireInvitationCode}>
-                Invitation Code {!props.requireInvitationCode && '(Optional)'}
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="invitation_code"
-                  name="invitation_code"
-                  type="text"
-                  value={registration.invitationCode()}
-                  onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
-                />
+            <Show when={props.showInvitationCode === true}>
+              <div>
+                <Label for="invitation_code" required={props.requireInvitationCode}>
+                  Invitation Code {!props.requireInvitationCode && '(Optional)'}
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="invitation_code"
+                    name="invitation_code"
+                    type="text"
+                    value={registration.invitationCode()}
+                    onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
+                  />
+                </div>
               </div>
-            </div>
+            </Show>
 
             {/* Submit Button */}
             <div>

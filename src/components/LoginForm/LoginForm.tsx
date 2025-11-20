@@ -69,18 +69,19 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
           </Show>
 
           <form onSubmit={handleSubmit} class="space-y-6">
-            {/* Username Field */}
+            {/* Username/Email Field */}
             <div>
               <Label for="username" required>
-                Username
+                Email or Username
               </Label>
               <div class="mt-1">
                 <Input
                   id="username"
                   name="username"
                   type="text"
-                  autocomplete="username"
+                  autocomplete="username email"
                   required
+                  placeholder="your@email.com or username"
                   value={login.username()}
                   onInput={(e) => login.setUsername(e.currentTarget.value)}
                 />
