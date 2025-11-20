@@ -22,6 +22,10 @@ export interface PasswordlessRegistrationFormProps {
   requireInvitationCode?: boolean;
   /** Show invitation code field (default: false) */
   showInvitationCode?: boolean;
+  /** Show username field (default: false) */
+  showUsername?: boolean;
+  /** Show password field (default: false) */
+  showPassword?: boolean;
   /** Show link to login page */
   showLoginLink?: boolean;
   /** Redirect URL after registration */
@@ -97,19 +101,73 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
             </div>
 
             {/* Username Field (Optional) */}
-            <div>
-              <Label for="username">Username (Optional)</Label>
-              <div class="mt-1">
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autocomplete="username"
-                  value={registration.username()}
-                  onInput={(e) => registration.setUsername(e.currentTarget.value)}
-                />
+            <Show when={props.showUsername === true}>
+              <div>
+                <Label for="username">Username (Optional)</Label>
+                <div class="mt-1">
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    value={registration.username()}
+                    onInput={(e) => registration.setUsername(e.currentTarget.value)}
+                  />
+                </div>
               </div>
-            </div>
+            </Show>
+
+            {/* Password Field (Optional) */}
+            <Show when={props.showPassword === true}>
+              <div>
+                <Label for="password">Password (Optional)</Label>
+                <div class="mt-1">
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="new-password"
+                    value={registration.password()}
+                    onInput={(e) => registration.setPassword(e.currentTarget.value)}
+                  />
+                </div>
+                {/* Password Strength Indicator */}
+                <Show when={registration.password()}>
+                  <div class="mt-2">
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          class={`h-full transition-all duration-300 ${registration.passwordStrength().color}`}
+                          style={{ width: `${registration.passwordStrength().percentage}%` }}
+                        />
+                      </div>
+                      <span class="text-xs text-gray-600 min-w-[60px]">
+                        {registration.passwordStrength().text}
+                      </span>
+                    </div>
+                  </div>
+                </Show>
+              </div>
+
+              {/* Confirm Password Field */}
+              <div>
+                <Label for="confirmPassword">Confirm Password</Label>
+                <div class="mt-1">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    value={registration.confirmPassword()}
+                    onInput={(e) => registration.setConfirmPassword(e.currentTarget.value)}
+                    error={!registration.passwordsMatch()}
+                    helperText={
+                      !registration.passwordsMatch() ? 'Passwords do not match' : undefined
+                    }
+                  />
+                </div>
+              </div>
+            </Show>
 
             {/* Full Name Field (Optional) */}
             <div>
