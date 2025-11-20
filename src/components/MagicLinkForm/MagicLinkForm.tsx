@@ -40,17 +40,17 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
   };
 
   return (
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="text-center text-3xl font-extrabold text-gray-900">
+    <div class="w-full">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-extrabold text-gray-900">
           Magic Link Login
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="mt-2 text-sm text-gray-600">
           We'll email you a link to sign in
         </p>
       </div>
 
-      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="w-full">
         <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
           <Show when={magicLink.error()}>
             <Alert variant="error" class="mb-6">

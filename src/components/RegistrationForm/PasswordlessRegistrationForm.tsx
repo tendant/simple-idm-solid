@@ -53,17 +53,17 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
   };
 
   return (
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="text-center text-3xl font-extrabold text-gray-900">
+    <div class="w-full">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-extrabold text-gray-900">
           Create your account
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="mt-2 text-sm text-gray-600">
           Quick signup, no password needed
         </p>
       </div>
 
-      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="w-full">
         <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
           <Show when={registration.error()}>
             <Alert variant="error" class="mb-6">
