@@ -166,9 +166,10 @@ export class SimpleIdmClient {
 
   /**
    * Request a magic link to be sent to the user's email
+   * Accepts either username or email
    */
   async requestMagicLink(request: MagicLinkRequest): Promise<MagicLinkResponse> {
-    const response = await this.request<MagicLinkResponse>(`${this.prefixes.auth}/magic-link/email`, {
+    const response = await this.request<MagicLinkResponse>(`${this.prefixes.auth}/magic-link`, {
       method: 'POST',
       body: JSON.stringify(request),
     });

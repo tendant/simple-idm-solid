@@ -121,7 +121,7 @@ export interface VerificationStatusResponse {
 // ============================================================================
 
 export interface MagicLinkRequest {
-  /** Can be username or email */
+  /** Username or email to send magic link to */
   username: string;
 }
 
