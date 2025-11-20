@@ -495,6 +495,23 @@ export class SimpleIdmClient {
         return undefined as T;
       }
 
+      // Check if response has content
+      const contentLength = response.headers.get('Content-Length');
+      if (contentLength === '0' || contentLength === null) {
+        // Try to read as text to check if body is empty
+        const text = await response.text();
+        if (!text || text.trim() === '') {
+          return undefined as T;
+        }
+        // If we have text, try to parse it as JSON
+        try {
+          return JSON.parse(text) as T;
+        } catch {
+          // If not valid JSON, return undefined for void responses
+          return undefined as T;
+        }
+      }
+
       // Parse JSON response
       const data = await response.json();
       return data as T;
