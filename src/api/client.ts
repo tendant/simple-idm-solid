@@ -537,16 +537,43 @@ export class SimpleIdmClient {
   private async parseErrorResponse(response: Response): Promise<ApiError> {
     try {
       const data = await response.json();
+      // Use the server's error message if available, otherwise provide a user-friendly default
+      const defaultMessage = this.getDefaultErrorMessage(response.status);
       return {
-        message: data.message || data.error || 'Request failed',
+        message: data.message || data.error || defaultMessage,
         status: response.status,
         error: data.error,
       };
     } catch {
+      // If JSON parsing fails, provide a user-friendly default message
       return {
-        message: response.statusText || 'Request failed',
+        message: this.getDefaultErrorMessage(response.status),
         status: response.status,
       };
+    }
+  }
+
+  /**
+   * Get a user-friendly error message based on HTTP status code
+   */
+  private getDefaultErrorMessage(status: number): string {
+    switch (status) {
+      case 400:
+        return 'Invalid username or password. Please check your credentials and try again.';
+      case 401:
+        return 'Your session has expired. Please log in again.';
+      case 403:
+        return 'You do not have permission to access this resource.';
+      case 404:
+        return 'The requested resource was not found.';
+      case 429:
+        return 'Too many attempts. Please try again later.';
+      case 500:
+        return 'A server error occurred. Please try again later.';
+      case 503:
+        return 'The service is temporarily unavailable. Please try again later.';
+      default:
+        return 'An unexpected error occurred. Please try again.';
     }
   }
 }
