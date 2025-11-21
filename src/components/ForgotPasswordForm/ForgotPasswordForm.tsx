@@ -109,27 +109,29 @@ export const ForgotPasswordForm: Component<ForgotPasswordFormProps> = (props) =>
 
           {/* Form */}
           <Show when={!forgotPassword.success()}>
-            <form onSubmit={handleSubmit} class="space-y-6">
-              <div>
-                <Label for="identifier" required>
-                  {getInputLabel()}
-                </Label>
-                <div class="mt-1">
-                  <Input
-                    id="identifier"
-                    name="identifier"
-                    type={getInputType()}
-                    autocomplete={method === 'email' ? 'email' : 'username'}
-                    required
-                    value={forgotPassword.identifier()}
-                    onInput={(e) => forgotPassword.setIdentifier(e.currentTarget.value)}
-                    placeholder={getInputPlaceholder()}
-                    disabled={forgotPassword.isLoading()}
-                  />
+            <form onSubmit={handleSubmit}>
+              <div class="space-y-6">
+                <div>
+                  <Label for="identifier" required>
+                    {getInputLabel()}
+                  </Label>
+                  <div class="mt-1">
+                    <Input
+                      id="identifier"
+                      name="identifier"
+                      type={getInputType()}
+                      autocomplete={method === 'email' ? 'email' : 'username'}
+                      required
+                      value={forgotPassword.identifier()}
+                      onInput={(e) => forgotPassword.setIdentifier(e.currentTarget.value)}
+                      placeholder={getInputPlaceholder()}
+                      disabled={forgotPassword.isLoading()}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
+              <div class="mt-8">
                 <Button
                   type="submit"
                   variant="primary"

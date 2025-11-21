@@ -73,134 +73,136 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
             </Alert>
           </Show>
 
-          <form onSubmit={handleSubmit} class="space-y-6">
-            {/* Username Field */}
-            <div>
-              <Label for="username" required>
-                Username
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autocomplete="username"
-                  required
-                  value={registration.username()}
-                  onInput={(e) => registration.setUsername(e.currentTarget.value)}
-                />
+          <form onSubmit={handleSubmit}>
+            <div class="space-y-6">
+              {/* Username Field */}
+              <div>
+                <Label for="username" required>
+                  Username
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                    value={registration.username()}
+                    onInput={(e) => registration.setUsername(e.currentTarget.value)}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Email Field */}
-            <div>
-              <Label for="email" required>
-                Email
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  required
-                  value={registration.email()}
-                  onInput={(e) => registration.setEmail(e.currentTarget.value)}
-                />
+              {/* Email Field */}
+              <div>
+                <Label for="email" required>
+                  Email
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    value={registration.email()}
+                    onInput={(e) => registration.setEmail(e.currentTarget.value)}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Password Field */}
-            <div>
-              <Label for="password" required>
-                Password
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autocomplete="new-password"
-                  required
-                  value={registration.password()}
-                  onInput={(e) => registration.setPassword(e.currentTarget.value)}
-                />
-              </div>
-              {/* Password Strength Indicator */}
-              <Show when={registration.password()}>
-                <div class="mt-2">
-                  <div class="flex items-center gap-2">
-                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        class={`h-full transition-all duration-300 ${registration.passwordStrength().color}`}
-                        style={{ width: `${registration.passwordStrength().percentage}%` }}
-                      />
+              {/* Password Field */}
+              <div>
+                <Label for="password" required>
+                  Password
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="new-password"
+                    required
+                    value={registration.password()}
+                    onInput={(e) => registration.setPassword(e.currentTarget.value)}
+                  />
+                </div>
+                {/* Password Strength Indicator */}
+                <Show when={registration.password()}>
+                  <div class="mt-2">
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          class={`h-full transition-all duration-300 ${registration.passwordStrength().color}`}
+                          style={{ width: `${registration.passwordStrength().percentage}%` }}
+                        />
+                      </div>
+                      <span class="text-xs text-gray-600 min-w-[60px]">
+                        {registration.passwordStrength().text}
+                      </span>
                     </div>
-                    <span class="text-xs text-gray-600 min-w-[60px]">
-                      {registration.passwordStrength().text}
-                    </span>
+                  </div>
+                </Show>
+              </div>
+
+              {/* Confirm Password Field */}
+              <div>
+                <Label for="confirmPassword" required>
+                  Confirm Password
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    required
+                    value={registration.confirmPassword()}
+                    onInput={(e) => registration.setConfirmPassword(e.currentTarget.value)}
+                    error={!registration.passwordsMatch()}
+                    helperText={
+                      !registration.passwordsMatch() ? 'Passwords do not match' : undefined
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Full Name Field (Optional) */}
+              <div>
+                <Label for="fullname">Full Name (Optional)</Label>
+                <div class="mt-1">
+                  <Input
+                    id="fullname"
+                    name="fullname"
+                    type="text"
+                    autocomplete="name"
+                    value={registration.fullname()}
+                    onInput={(e) => registration.setFullname(e.currentTarget.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Invitation Code Field */}
+              <Show when={props.showInvitationCode === true}>
+                <div>
+                  <Label for="invitation_code" required={props.requireInvitationCode}>
+                    Invitation Code {!props.requireInvitationCode && '(Optional)'}
+                  </Label>
+                  <div class="mt-1">
+                    <Input
+                      id="invitation_code"
+                      name="invitation_code"
+                      type="text"
+                      value={registration.invitationCode()}
+                      onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
+                    />
                   </div>
                 </div>
               </Show>
             </div>
 
-            {/* Confirm Password Field */}
-            <div>
-              <Label for="confirmPassword" required>
-                Confirm Password
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autocomplete="new-password"
-                  required
-                  value={registration.confirmPassword()}
-                  onInput={(e) => registration.setConfirmPassword(e.currentTarget.value)}
-                  error={!registration.passwordsMatch()}
-                  helperText={
-                    !registration.passwordsMatch() ? 'Passwords do not match' : undefined
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Full Name Field (Optional) */}
-            <div>
-              <Label for="fullname">Full Name (Optional)</Label>
-              <div class="mt-1">
-                <Input
-                  id="fullname"
-                  name="fullname"
-                  type="text"
-                  autocomplete="name"
-                  value={registration.fullname()}
-                  onInput={(e) => registration.setFullname(e.currentTarget.value)}
-                />
-              </div>
-            </div>
-
-            {/* Invitation Code Field */}
-            <Show when={props.showInvitationCode === true}>
-              <div>
-                <Label for="invitation_code" required={props.requireInvitationCode}>
-                  Invitation Code {!props.requireInvitationCode && '(Optional)'}
-                </Label>
-                <div class="mt-1">
-                  <Input
-                    id="invitation_code"
-                    name="invitation_code"
-                    type="text"
-                    value={registration.invitationCode()}
-                    onInput={(e) => registration.setInvitationCode(e.currentTarget.value)}
-                  />
-                </div>
-              </div>
-            </Show>
-
             {/* Submit Button */}
-            <div>
+            <div class="mt-8">
               <Button
                 type="submit"
                 variant="primary"

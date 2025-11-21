@@ -69,28 +69,30 @@ export const MagicLinkForm: Component<MagicLinkFormProps> = (props) => {
             </Alert>
           </Show>
 
-          <form onSubmit={handleSubmit} class="space-y-6">
-            {/* Username/Email Field */}
-            <div>
-              <Label for="username" required>
-                Email or Username
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autocomplete="username email"
-                  required
-                  placeholder="your@email.com or username"
-                  value={magicLink.username()}
-                  onInput={(e) => magicLink.setUsername(e.currentTarget.value)}
-                />
+          <form onSubmit={handleSubmit}>
+            <div class="space-y-6">
+              {/* Username/Email Field */}
+              <div>
+                <Label for="username" required>
+                  Email or Username
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username email"
+                    required
+                    placeholder="your@email.com or username"
+                    value={magicLink.username()}
+                    onInput={(e) => magicLink.setUsername(e.currentTarget.value)}
+                  />
+                </div>
               </div>
             </div>
 
             {/* Submit Button */}
-            <div>
+            <div class="mt-8">
               <Button
                 type="submit"
                 variant="primary"

@@ -68,46 +68,48 @@ export const LoginForm: Component<LoginFormProps> = (props) => {
             </Alert>
           </Show>
 
-          <form onSubmit={handleSubmit} class="space-y-6">
-            {/* Username/Email Field */}
-            <div>
-              <Label for="username" required>
-                Email or Username
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autocomplete="username email"
-                  required
-                  placeholder="your@email.com or username"
-                  value={login.username()}
-                  onInput={(e) => login.setUsername(e.currentTarget.value)}
-                />
+          <form onSubmit={handleSubmit}>
+            <div class="space-y-6">
+              {/* Username/Email Field */}
+              <div>
+                <Label for="username" required>
+                  Email or Username
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username email"
+                    required
+                    placeholder="your@email.com or username"
+                    value={login.username()}
+                    onInput={(e) => login.setUsername(e.currentTarget.value)}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Password Field */}
-            <div>
-              <Label for="password" required>
-                Password
-              </Label>
-              <div class="mt-1">
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autocomplete="current-password"
-                  required
-                  value={login.password()}
-                  onInput={(e) => login.setPassword(e.currentTarget.value)}
-                />
+              {/* Password Field */}
+              <div>
+                <Label for="password" required>
+                  Password
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                    value={login.password()}
+                    onInput={(e) => login.setPassword(e.currentTarget.value)}
+                  />
+                </div>
               </div>
             </div>
 
             {/* Submit Button */}
-            <div>
+            <div class="mt-8">
               <Button
                 type="submit"
                 variant="primary"

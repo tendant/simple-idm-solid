@@ -128,130 +128,132 @@ export const ResetPasswordForm: Component<ResetPasswordFormProps> = (props) => {
               </div>
             </Show>
 
-            <form onSubmit={handleSubmit} class="space-y-6">
-              {/* Token Input (optional) */}
-              <Show when={showTokenInput}>
+            <form onSubmit={handleSubmit}>
+              <div class="space-y-6">
+                {/* Token Input (optional) */}
+                <Show when={showTokenInput}>
+                  <div>
+                    <Label for="token" required>
+                      Reset Token
+                    </Label>
+                    <div class="mt-1">
+                      <Input
+                        id="token"
+                        name="token"
+                        type="text"
+                        required
+                        value={resetPassword.token()}
+                        onInput={(e) => resetPassword.setToken(e.currentTarget.value)}
+                        placeholder="Paste your reset token here"
+                        disabled={resetPassword.isLoading()}
+                      />
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                      Enter the token from your password reset email
+                    </p>
+                  </div>
+                </Show>
+
+                {/* New Password */}
                 <div>
-                  <Label for="token" required>
-                    Reset Token
+                  <Label for="new-password" required>
+                    New Password
                   </Label>
                   <div class="mt-1">
                     <Input
-                      id="token"
-                      name="token"
-                      type="text"
+                      id="new-password"
+                      name="new-password"
+                      type="password"
+                      autocomplete="new-password"
                       required
-                      value={resetPassword.token()}
-                      onInput={(e) => resetPassword.setToken(e.currentTarget.value)}
-                      placeholder="Paste your reset token here"
+                      value={resetPassword.newPassword()}
+                      onInput={(e) => resetPassword.setNewPassword(e.currentTarget.value)}
+                      placeholder="Enter new password"
                       disabled={resetPassword.isLoading()}
                     />
                   </div>
-                  <p class="mt-1 text-xs text-gray-500">
-                    Enter the token from your password reset email
-                  </p>
-                </div>
-              </Show>
 
-              {/* New Password */}
-              <div>
-                <Label for="new-password" required>
-                  New Password
-                </Label>
-                <div class="mt-1">
-                  <Input
-                    id="new-password"
-                    name="new-password"
-                    type="password"
-                    autocomplete="new-password"
-                    required
-                    value={resetPassword.newPassword()}
-                    onInput={(e) => resetPassword.setNewPassword(e.currentTarget.value)}
-                    placeholder="Enter new password"
-                    disabled={resetPassword.isLoading()}
-                  />
-                </div>
-
-                {/* Password Strength Indicator */}
-                <Show when={resetPassword.newPassword().length > 0}>
-                  <div class="mt-2">
-                    <div class="flex items-center justify-between text-xs mb-1">
-                      <span class="text-gray-600">Password strength:</span>
-                      <span class={resetPassword.passwordStrength().color}>
-                        {resetPassword.passwordStrength().label}
-                      </span>
+                  {/* Password Strength Indicator */}
+                  <Show when={resetPassword.newPassword().length > 0}>
+                    <div class="mt-2">
+                      <div class="flex items-center justify-between text-xs mb-1">
+                        <span class="text-gray-600">Password strength:</span>
+                        <span class={resetPassword.passwordStrength().color}>
+                          {resetPassword.passwordStrength().label}
+                        </span>
+                      </div>
+                      <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          class={`h-2 rounded-full transition-all duration-300 ${getStrengthBarColor()}`}
+                          style={{
+                            width: `${resetPassword.passwordStrength().percentage}%`,
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div
-                        class={`h-2 rounded-full transition-all duration-300 ${getStrengthBarColor()}`}
-                        style={{
-                          width: `${resetPassword.passwordStrength().percentage}%`,
-                        }}
-                      />
+                  </Show>
+
+                  {/* Password Policy Requirements */}
+                  <Show when={resetPassword.policy()}>
+                    <div class="mt-2 text-xs text-gray-600">
+                      <p class="font-medium">Password must:</p>
+                      <ul class="mt-1 space-y-1 list-disc list-inside">
+                        <li>Be at least {resetPassword.policy()!.min_length} characters long</li>
+                        <Show when={resetPassword.policy()!.require_uppercase}>
+                          <li>Include an uppercase letter</li>
+                        </Show>
+                        <Show when={resetPassword.policy()!.require_lowercase}>
+                          <li>Include a lowercase letter</li>
+                        </Show>
+                        <Show when={resetPassword.policy()!.require_digit}>
+                          <li>Include a number</li>
+                        </Show>
+                        <Show when={resetPassword.policy()!.require_special_char}>
+                          <li>Include a special character</li>
+                        </Show>
+                      </ul>
                     </div>
-                  </div>
-                </Show>
-
-                {/* Password Policy Requirements */}
-                <Show when={resetPassword.policy()}>
-                  <div class="mt-2 text-xs text-gray-600">
-                    <p class="font-medium">Password must:</p>
-                    <ul class="mt-1 space-y-1 list-disc list-inside">
-                      <li>Be at least {resetPassword.policy()!.min_length} characters long</li>
-                      <Show when={resetPassword.policy()!.require_uppercase}>
-                        <li>Include an uppercase letter</li>
-                      </Show>
-                      <Show when={resetPassword.policy()!.require_lowercase}>
-                        <li>Include a lowercase letter</li>
-                      </Show>
-                      <Show when={resetPassword.policy()!.require_digit}>
-                        <li>Include a number</li>
-                      </Show>
-                      <Show when={resetPassword.policy()!.require_special_char}>
-                        <li>Include a special character</li>
-                      </Show>
-                    </ul>
-                  </div>
-                </Show>
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <Label for="confirm-password" required>
-                  Confirm New Password
-                </Label>
-                <div class="mt-1">
-                  <Input
-                    id="confirm-password"
-                    name="confirm-password"
-                    type="password"
-                    autocomplete="new-password"
-                    required
-                    value={resetPassword.confirmPassword()}
-                    onInput={(e) => resetPassword.setConfirmPassword(e.currentTarget.value)}
-                    placeholder="Confirm new password"
-                    disabled={resetPassword.isLoading()}
-                  />
+                  </Show>
                 </div>
-                <Show
-                  when={
-                    resetPassword.confirmPassword().length > 0 &&
-                    !resetPassword.passwordsMatch()
-                  }
-                >
-                  <p class="mt-1 text-xs text-red-600">Passwords do not match</p>
-                </Show>
-                <Show
-                  when={
-                    resetPassword.confirmPassword().length > 0 && resetPassword.passwordsMatch()
-                  }
-                >
-                  <p class="mt-1 text-xs text-green-600">Passwords match</p>
-                </Show>
+
+                {/* Confirm Password */}
+                <div>
+                  <Label for="confirm-password" required>
+                    Confirm New Password
+                  </Label>
+                  <div class="mt-1">
+                    <Input
+                      id="confirm-password"
+                      name="confirm-password"
+                      type="password"
+                      autocomplete="new-password"
+                      required
+                      value={resetPassword.confirmPassword()}
+                      onInput={(e) => resetPassword.setConfirmPassword(e.currentTarget.value)}
+                      placeholder="Confirm new password"
+                      disabled={resetPassword.isLoading()}
+                    />
+                  </div>
+                  <Show
+                    when={
+                      resetPassword.confirmPassword().length > 0 &&
+                      !resetPassword.passwordsMatch()
+                    }
+                  >
+                    <p class="mt-1 text-xs text-red-600">Passwords do not match</p>
+                  </Show>
+                  <Show
+                    when={
+                      resetPassword.confirmPassword().length > 0 && resetPassword.passwordsMatch()
+                    }
+                  >
+                    <p class="mt-1 text-xs text-green-600">Passwords match</p>
+                  </Show>
+                </div>
               </div>
 
               {/* Submit Button */}
-              <div>
+              <div class="mt-8">
                 <Button
                   type="submit"
                   variant="primary"
