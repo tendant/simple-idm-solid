@@ -142,16 +142,14 @@ export interface MagicLinkValidateResponse {
 // Signup Types
 // ============================================================================
 
-export interface PasswordlessSignupRequest {
+/**
+ * Unified signup request - password is optional
+ * If password is provided, performs password-based registration
+ * Otherwise, performs passwordless registration
+ */
+export interface SignupRequest {
   email: string;
-  username?: string;
-  fullname?: string;
-  invitation_code?: string;
-}
-
-export interface PasswordSignupRequest {
-  email: string;
-  password: string;
+  password?: string;
   username?: string;
   fullname?: string;
   invitation_code?: string;

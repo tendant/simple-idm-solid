@@ -12,8 +12,7 @@ import type {
   MagicLinkRequest,
   MagicLinkResponse,
   MagicLinkValidateResponse,
-  PasswordlessSignupRequest,
-  PasswordSignupRequest,
+  SignupRequest,
   SignupResponse,
   UserInfo,
   TokenRefreshResponse,
@@ -215,21 +214,12 @@ export class SimpleIdmClient {
   // ============================================================================
 
   /**
-   * Register a new user without a password (passwordless)
+   * Register a new user
+   * Password is optional - if provided, performs password-based registration
+   * Otherwise, performs passwordless registration
    */
-  async signupPasswordless(data: PasswordlessSignupRequest): Promise<SignupResponse> {
-    const response = await this.request<SignupResponse>(`${this.prefixes.signup}/passwordless`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    return response;
-  }
-
-  /**
-   * Register a new user with a password
-   */
-  async signupWithPassword(data: PasswordSignupRequest): Promise<SignupResponse> {
-    const response = await this.request<SignupResponse>(`${this.prefixes.signup}/register`, {
+  async signup(data: SignupRequest): Promise<SignupResponse> {
+    const response = await this.request<SignupResponse>(`${this.prefixes.signup}`, {
       method: 'POST',
       body: JSON.stringify(data),
     });

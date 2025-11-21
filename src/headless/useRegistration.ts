@@ -279,38 +279,21 @@ export function useRegistration(
       setSuccess(null);
       setResponse(null);
 
-      let registrationResponse: SignupResponse;
+      // Build unified signup request
+      const data = {
+        email: email(),
+        ...(password().trim() && { password: password() }),
+        ...(username() && { username: username() }),
+        ...(fullname() && { fullname: fullname() }),
+        ...(invitationCode() && { invitation_code: invitationCode() }),
+      };
 
-      // Dynamically choose endpoint based on whether password is provided
-      const hasPassword = password().trim().length > 0;
-
-      if (hasPassword) {
-        // Password-based registration
-        const data = {
-          email: email(),
-          password: password(),
-          ...(username() && { username: username() }),
-          ...(fullname() && { fullname: fullname() }),
-          ...(invitationCode() && { invitation_code: invitationCode() }),
-        };
-
-        registrationResponse = await client.signupWithPassword(data);
-      } else {
-        // Passwordless registration
-        const data = {
-          email: email(),
-          ...(username() && { username: username() }),
-          ...(fullname() && { fullname: fullname() }),
-          ...(invitationCode() && { invitation_code: invitationCode() }),
-        };
-
-        registrationResponse = await client.signupPasswordless(data);
-      }
+      const registrationResponse = await client.signup(data);
 
       setResponse(registrationResponse);
       setSuccess(
         registrationResponse.message ||
-          (hasPassword
+          (password().trim()
             ? 'Account created successfully! You can now log in.'
             : 'Account created successfully! Please check your email to complete registration.'),
       );
