@@ -150,9 +150,9 @@ export interface PasswordlessSignupRequest {
 }
 
 export interface PasswordSignupRequest {
-  username: string;
   email: string;
   password: string;
+  username?: string;
   fullname?: string;
   invitation_code?: string;
 }

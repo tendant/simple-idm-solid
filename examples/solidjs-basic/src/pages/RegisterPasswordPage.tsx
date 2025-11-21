@@ -19,6 +19,7 @@ const RegisterPasswordPage: Component = () => {
         onError={(error) => {
           console.error('Registration failed:', error);
         }}
+        optionalPassword={true}
         requireInvitationCode={false}
         showLoginLink
       />

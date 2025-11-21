@@ -10,11 +10,6 @@ import { SimpleIdmClient } from '~/api/client';
 import type { SignupResponse } from '~/types/api';
 
 /**
- * Registration mode
- */
-export type RegistrationMode = 'password' | 'passwordless';
-
-/**
  * Password strength level
  */
 export type PasswordStrength = 'weak' | 'medium' | 'strong';
@@ -29,12 +24,6 @@ export interface UseRegistrationConfig {
    * - If SimpleIdmClient: Uses the provided instance
    */
   client?: SimpleIdmClient | string;
-
-  /**
-   * Registration mode: password or passwordless
-   * @default 'password'
-   */
-  mode?: RegistrationMode;
 
   /**
    * Callback invoked on successful registration
@@ -148,14 +137,13 @@ export interface UseRegistrationReturn {
 /**
  * Headless hook for user registration
  *
- * @example Password registration
+ * @example Registration (flexible - with or without password)
  * ```tsx
  * import { useRegistration } from '@tendant/simple-idm-solid/headless';
  *
  * const MyRegistrationForm = () => {
  *   const reg = useRegistration({
  *     client: 'http://localhost:4000',
- *     mode: 'password',
  *     onSuccess: () => {
  *       console.log('Account created!');
  *     },
@@ -164,10 +152,12 @@ export interface UseRegistrationReturn {
  *   return (
  *     <form onSubmit={(e) => { e.preventDefault(); reg.submit(); }}>
  *       <input
- *         value={reg.username()}
- *         onInput={(e) => reg.setUsername(e.currentTarget.value)}
+ *         placeholder="Email"
+ *         value={reg.email()}
+ *         onInput={(e) => reg.setEmail(e.currentTarget.value)}
  *       />
  *       <input
+ *         placeholder="Password (optional)"
  *         type="password"
  *         value={reg.password()}
  *         onInput={(e) => reg.setPassword(e.currentTarget.value)}
@@ -178,19 +168,10 @@ export interface UseRegistrationReturn {
  *   );
  * };
  * ```
- *
- * @example Passwordless registration
- * ```tsx
- * const reg = useRegistration({
- *   client: 'http://localhost:4000',
- *   mode: 'passwordless',
- * });
- * ```
  */
 export function useRegistration(
   config: UseRegistrationConfig,
 ): UseRegistrationReturn {
-  const mode = config.mode ?? 'password';
 
   // Form state
   const [username, setUsername] = createSignal('');
@@ -270,27 +251,17 @@ export function useRegistration(
 
   // Form validation
   const canSubmit = createMemo(() => {
-    // Common validations
+    // Email is always required
     if (isLoading()) return false;
     if (!email().trim() || !email().includes('@')) return false;
     if (config.requireInvitationCode && !invitationCode().trim()) return false;
 
-    // Mode-specific validations
-    if (mode === 'password') {
-      // In password mode, require username and password
-      if (!username().trim()) return false;
-      if (!password().trim() || password().length < 3) return false;
-      // Only validate match if confirm password field is filled (field shown and used)
+    // If password is provided, validate it
+    const hasPassword = password().trim().length > 0;
+    if (hasPassword) {
+      if (password().length < 3) return false;
+      // Only validate match if confirm password field is filled
       if (confirmPassword().trim() && !passwordsMatch()) return false;
-    } else if (mode === 'passwordless') {
-      // In passwordless mode, if password is provided, validate it
-      const hasPassword = password().trim().length > 0;
-      if (hasPassword) {
-        // If password is provided, must be valid
-        if (password().length < 3) return false;
-        // Only validate match if confirm password field is filled (field shown and used)
-        if (confirmPassword().trim() && !passwordsMatch()) return false;
-      }
     }
 
     return true;
@@ -313,12 +284,12 @@ export function useRegistration(
       // Dynamically choose endpoint based on whether password is provided
       const hasPassword = password().trim().length > 0;
 
-      if (mode === 'password' || hasPassword) {
+      if (hasPassword) {
         // Password-based registration
         const data = {
-          username: username(),
           email: email(),
           password: password(),
+          ...(username() && { username: username() }),
           ...(fullname() && { fullname: fullname() }),
           ...(invitationCode() && { invitation_code: invitationCode() }),
         };
@@ -339,9 +310,9 @@ export function useRegistration(
       setResponse(registrationResponse);
       setSuccess(
         registrationResponse.message ||
-          (mode === 'passwordless'
-            ? 'Account created successfully! Please check your email to complete registration.'
-            : 'Account created successfully! You can now log in.'),
+          (hasPassword
+            ? 'Account created successfully! You can now log in.'
+            : 'Account created successfully! Please check your email to complete registration.'),
       );
       config.onSuccess?.(registrationResponse);
 

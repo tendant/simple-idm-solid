@@ -26,7 +26,6 @@ export { useRegistration } from './useRegistration';
 export type {
   UseRegistrationConfig,
   UseRegistrationReturn,
-  RegistrationMode,
   PasswordStrength,
   PasswordStrengthResult,
 } from './useRegistration';

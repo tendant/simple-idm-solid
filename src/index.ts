@@ -111,7 +111,6 @@ export type {
   UseMagicLinkReturn,
   UseRegistrationConfig,
   UseRegistrationReturn,
-  RegistrationMode,
   PasswordStrength,
   PasswordStrengthResult,
   UseProfileConfig,

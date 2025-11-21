@@ -42,7 +42,6 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
   // Use headless registration hook for business logic
   const registration = useRegistration({
     client: props.apiBaseUrl,
-    mode: 'passwordless',
     onSuccess: props.onSuccess,
     onError: props.onError,
     requireInvitationCode: props.requireInvitationCode,
