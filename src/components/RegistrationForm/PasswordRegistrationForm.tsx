@@ -122,41 +122,39 @@ export const PasswordRegistrationForm: Component<PasswordRegistrationFormProps> 
                 </div>
               </Show>
 
-              {/* Password Field (shown when not in passwordless mode) */}
-              <Show when={!props.optionalPassword}>
-                <div>
-                  <Label for="password" required={!isPasswordOptional()}>
-                    Password {isPasswordOptional() && '(Optional)'}
-                  </Label>
-                  <div class="mt-1">
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autocomplete="new-password"
-                      required={!isPasswordOptional()}
-                      value={registration.password()}
-                      onInput={(e) => registration.setPassword(e.currentTarget.value)}
-                    />
-                  </div>
-                  {/* Password Strength Indicator */}
-                  <Show when={registration.password()}>
-                    <div class="mt-2">
-                      <div class="flex items-center gap-2">
-                        <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            class={`h-full transition-all duration-300 ${registration.passwordStrength().color}`}
-                            style={{ width: `${registration.passwordStrength().percentage}%` }}
-                          />
-                        </div>
-                        <span class="text-xs text-gray-600 min-w-[60px]">
-                          {registration.passwordStrength().text}
-                        </span>
-                      </div>
-                    </div>
-                  </Show>
+              {/* Password Field */}
+              <div>
+                <Label for="password" required={!isPasswordOptional()}>
+                  Password {isPasswordOptional() && '(Optional)'}
+                </Label>
+                <div class="mt-1">
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="new-password"
+                    required={!isPasswordOptional()}
+                    value={registration.password()}
+                    onInput={(e) => registration.setPassword(e.currentTarget.value)}
+                  />
                 </div>
-              </Show>
+                {/* Password Strength Indicator */}
+                <Show when={registration.password()}>
+                  <div class="mt-2">
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          class={`h-full transition-all duration-300 ${registration.passwordStrength().color}`}
+                          style={{ width: `${registration.passwordStrength().percentage}%` }}
+                        />
+                      </div>
+                      <span class="text-xs text-gray-600 min-w-[60px]">
+                        {registration.passwordStrength().text}
+                      </span>
+                    </div>
+                  </div>
+                </Show>
+              </div>
 
               {/* Confirm Password Field (Conditionally shown) */}
               <Show when={props.showConfirmPassword === true && !props.optionalPassword}>
