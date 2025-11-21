@@ -231,8 +231,8 @@ export function useRegistration(
     }
 
     let strength = 0;
+    if (pwd.length >= 3) strength += 25;
     if (pwd.length >= 8) strength += 25;
-    if (pwd.length >= 12) strength += 25;
     if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength += 25;
     if (/\d/.test(pwd)) strength += 12.5;
     if (/[^a-zA-Z\d]/.test(pwd)) strength += 12.5;
@@ -279,17 +279,17 @@ export function useRegistration(
     if (mode === 'password') {
       // In password mode, require username and password
       if (!username().trim()) return false;
-      if (!password().trim() || password().length < 8) return false;
-      if (!passwordsMatch()) return false;
+      if (!password().trim() || password().length < 3) return false;
+      // Only validate match if confirm password field is filled (field shown and used)
+      if (confirmPassword().trim() && !passwordsMatch()) return false;
     } else if (mode === 'passwordless') {
       // In passwordless mode, if password is provided, validate it
       const hasPassword = password().trim().length > 0;
       if (hasPassword) {
-        // If password is provided, must be valid and match
-        if (password().length < 8) return false;
-        if (!passwordsMatch()) return false;
-        // Also require username if password is provided
-        if (!username().trim()) return false;
+        // If password is provided, must be valid
+        if (password().length < 3) return false;
+        // Only validate match if confirm password field is filled (field shown and used)
+        if (confirmPassword().trim() && !passwordsMatch()) return false;
       }
     }
 
