@@ -148,25 +148,6 @@ export const PasswordlessRegistrationForm: Component<PasswordlessRegistrationFor
                   </div>
                 </Show>
               </div>
-
-              {/* Confirm Password Field */}
-              <div>
-                <Label for="confirmPassword">Confirm Password</Label>
-                <div class="mt-1">
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    autocomplete="new-password"
-                    value={registration.confirmPassword()}
-                    onInput={(e) => registration.setConfirmPassword(e.currentTarget.value)}
-                    error={!registration.passwordsMatch()}
-                    helperText={
-                      !registration.passwordsMatch() ? 'Passwords do not match' : undefined
-                    }
-                  />
-                </div>
-              </div>
             </Show>
 
             {/* Full Name Field (Optional) */}

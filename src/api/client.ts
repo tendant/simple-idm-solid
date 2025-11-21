@@ -157,7 +157,7 @@ export class SimpleIdmClient {
    * Tokens are automatically stored in HTTP-only cookies by the server
    */
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await this.request<LoginResponse>(`${this.prefixes.auth}/login`, {
+    const response = await this.request<LoginResponse>(`${this.prefixes.login}/`, {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -169,7 +169,7 @@ export class SimpleIdmClient {
    * Accepts either username or email
    */
   async requestMagicLink(request: MagicLinkRequest): Promise<MagicLinkResponse> {
-    const response = await this.request<MagicLinkResponse>(`${this.prefixes.auth}/magic-link`, {
+    const response = await this.request<MagicLinkResponse>(`${this.prefixes.login}/magic-link`, {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -182,7 +182,7 @@ export class SimpleIdmClient {
    */
   async validateMagicLink(token: string): Promise<MagicLinkValidateResponse> {
     const response = await this.request<MagicLinkValidateResponse>(
-      `${this.prefixes.auth}/magic-link/validate?token=${encodeURIComponent(token)}`,
+      `${this.prefixes.login}/magic-link/validate?token=${encodeURIComponent(token)}`,
       {
         method: 'GET',
       },
@@ -195,7 +195,7 @@ export class SimpleIdmClient {
    * New tokens are automatically stored in HTTP-only cookies by the server
    */
   async refreshToken(): Promise<TokenRefreshResponse> {
-    const response = await this.request<TokenRefreshResponse>(`${this.prefixes.auth}/token/refresh`, {
+    const response = await this.request<TokenRefreshResponse>(`${this.prefixes.login}/token/refresh`, {
       method: 'POST',
     });
     return response;
@@ -205,7 +205,7 @@ export class SimpleIdmClient {
    * Logout and clear authentication cookies
    */
   async logout(): Promise<void> {
-    await this.request<void>(`${this.prefixes.auth}/logout`, {
+    await this.request<void>(`${this.prefixes.login}/logout`, {
       method: 'POST',
     });
   }

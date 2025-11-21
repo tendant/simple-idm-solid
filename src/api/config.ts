@@ -9,8 +9,8 @@
  * Prefix configuration for all API route groups
  */
 export interface PrefixConfig {
-  /** Authentication endpoints (login, logout, magic link, token refresh) */
-  auth: string;
+  /** Login endpoints (login, logout, magic link, token refresh) */
+  login: string;
   /** User registration endpoints (passwordless, password-based) */
   signup: string;
   /** Profile management endpoints (username, phone, password updates) */
@@ -32,13 +32,13 @@ export interface PrefixConfig {
  * and `/api/v1/oauth2/*` for OAuth2 standard endpoints.
  */
 export const DEFAULT_V1_PREFIXES: PrefixConfig = {
-  auth: '/api/v1/idm/auth',
+  login: '/api/v1/idm/login',
   signup: '/api/v1/idm/signup',
   profile: '/api/v1/idm/profile',
   twoFA: '/api/v1/idm/2fa',
   email: '/api/v1/idm/email',
   passwordReset: '/api/v1/idm/password-reset',
-  oauth2: '/api/v1/oauth2',
+  oauth2: '/api/v1/idm/oauth2',
 };
 
 /**
@@ -50,7 +50,7 @@ export const DEFAULT_V1_PREFIXES: PrefixConfig = {
  * @deprecated Use DEFAULT_V1_PREFIXES or build with apiVersion: 'v1' instead
  */
 export const LEGACY_PREFIXES: PrefixConfig = {
-  auth: '/api/idm/auth',
+  login: '/api/idm/auth',
   signup: '/api/idm/signup',
   profile: '/api/idm/profile',
   twoFA: '/idm/2fa', // Inconsistent - missing /api prefix
@@ -72,7 +72,7 @@ export const LEGACY_PREFIXES: PrefixConfig = {
  * buildPrefixesFromBase('/api/v1/idm')
  * // Returns:
  * // {
- * //   auth: '/api/v1/idm/auth',
+ * //   login: '/api/v1/idm/login',
  * //   signup: '/api/v1/idm/signup',
  * //   profile: '/api/v1/idm/profile',
  * //   twoFA: '/api/v1/idm/2fa',
@@ -86,7 +86,7 @@ export function buildPrefixesFromBase(basePath: string): PrefixConfig {
   const base = basePath.replace(/\/$/, '');
 
   return {
-    auth: `${base}/auth`,
+    login: `${base}/login`,
     signup: `${base}/signup`,
     profile: `${base}/profile`,
     twoFA: `${base}/2fa`,
@@ -104,10 +104,10 @@ export function buildPrefixesFromBase(basePath: string): PrefixConfig {
  */
 export function buildPrefixesFromVersion(version: string): PrefixConfig {
   const base = `/api/${version}/idm`;
-  const oauth2Base = `/api/${version}/oauth2`;
+  const oauth2Base = `/api/${version}/idm/oauth2`;
 
   return {
-    auth: `${base}/auth`,
+    login: `${base}/login`,
     signup: `${base}/signup`,
     profile: `${base}/profile`,
     twoFA: `${base}/2fa`,
@@ -131,7 +131,7 @@ export function mergePrefixes(
   defaults: PrefixConfig,
 ): PrefixConfig {
   return {
-    auth: partial.auth ?? defaults.auth,
+    login: partial.login ?? defaults.login,
     signup: partial.signup ?? defaults.signup,
     profile: partial.profile ?? defaults.profile,
     twoFA: partial.twoFA ?? defaults.twoFA,
@@ -151,7 +151,7 @@ export function mergePrefixes(
  */
 export function validatePrefixes(prefixes: PrefixConfig): void {
   const keys: (keyof PrefixConfig)[] = [
-    'auth',
+    'login',
     'signup',
     'profile',
     'twoFA',
