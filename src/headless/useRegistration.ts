@@ -277,9 +277,20 @@ export function useRegistration(
 
     // Mode-specific validations
     if (mode === 'password') {
+      // In password mode, require username and password
       if (!username().trim()) return false;
       if (!password().trim() || password().length < 8) return false;
       if (!passwordsMatch()) return false;
+    } else if (mode === 'passwordless') {
+      // In passwordless mode, if password is provided, validate it
+      const hasPassword = password().trim().length > 0;
+      if (hasPassword) {
+        // If password is provided, must be valid and match
+        if (password().length < 8) return false;
+        if (!passwordsMatch()) return false;
+        // Also require username if password is provided
+        if (!username().trim()) return false;
+      }
     }
 
     return true;
@@ -299,7 +310,10 @@ export function useRegistration(
 
       let registrationResponse: SignupResponse;
 
-      if (mode === 'password') {
+      // Dynamically choose endpoint based on whether password is provided
+      const hasPassword = password().trim().length > 0;
+
+      if (mode === 'password' || hasPassword) {
         // Password-based registration
         const data = {
           username: username(),
