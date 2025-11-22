@@ -136,7 +136,7 @@ export const MagicLinkValidate: Component<MagicLinkValidateProps> = (props) => {
                 <div>
                   <p class="font-medium">Successfully logged in!</p>
                   <p class="mt-2 text-sm">
-                    Welcome back, {userInfo()?.username}!
+                    Welcome back, {userInfo()?.user?.name}!
                     <Show when={props.redirectUrl}>
                       {' '}
                       Redirecting you now...

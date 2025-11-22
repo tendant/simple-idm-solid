@@ -9,7 +9,7 @@
  * Prefix configuration for all API route groups
  */
 export interface PrefixConfig {
-  /** Login endpoints (login, logout, magic link, token refresh) */
+  /** Login endpoints (login, logout, token refresh) */
   login: string;
   /** User registration endpoints (passwordless, password-based) */
   signup: string;
@@ -21,6 +21,8 @@ export interface PrefixConfig {
   email: string;
   /** Password reset endpoints (initiate, reset, policy) */
   passwordReset: string;
+  /** Magic link endpoints (request, validate) */
+  magicLinks: string;
   /** OAuth2 standard endpoints (userinfo) */
   oauth2: string;
 }
@@ -38,7 +40,25 @@ export const DEFAULT_V1_PREFIXES: PrefixConfig = {
   twoFA: '/api/v1/idm/2fa',
   email: '/api/v1/idm/email',
   passwordReset: '/api/v1/idm/password-reset',
+  magicLinks: '/api/v1/idm/magic-links',
   oauth2: '/api/v1/idm/oauth2',
+};
+
+/**
+ * Default prefixes for API v2
+ *
+ * Uses clean handlers without code generation.
+ * Pattern: `/api/v2/auth` for auth/signup, `/api/v2/*` for other endpoints.
+ */
+export const DEFAULT_V2_PREFIXES: PrefixConfig = {
+  login: '/api/v2/auth',
+  signup: '/api/v2/auth',
+  profile: '/api/v2/profile',
+  twoFA: '/api/v2/2fa',
+  email: '/api/v2/email',
+  passwordReset: '/api/v2/passwords',
+  magicLinks: '/api/v2/magic-links',
+  oauth2: '/api/idm/oauth2',
 };
 
 /**
@@ -56,6 +76,7 @@ export const LEGACY_PREFIXES: PrefixConfig = {
   twoFA: '/idm/2fa', // Inconsistent - missing /api prefix
   email: '/api/idm/email',
   passwordReset: '/api/idm/password-reset',
+  magicLinks: '/api/idm/magic-links',
   oauth2: '/api/oauth2',
 };
 
@@ -92,6 +113,7 @@ export function buildPrefixesFromBase(basePath: string): PrefixConfig {
     twoFA: `${base}/2fa`,
     email: `${base}/email`,
     passwordReset: `${base}/password-reset`,
+    magicLinks: `${base}/magic-links`,
     oauth2: `${base}/oauth2`,
   };
 }
@@ -113,6 +135,7 @@ export function buildPrefixesFromVersion(version: string): PrefixConfig {
     twoFA: `${base}/2fa`,
     email: `${base}/email`,
     passwordReset: `${base}/password-reset`,
+    magicLinks: `${base}/magic-links`,
     oauth2: oauth2Base,
   };
 }
@@ -137,6 +160,7 @@ export function mergePrefixes(
     twoFA: partial.twoFA ?? defaults.twoFA,
     email: partial.email ?? defaults.email,
     passwordReset: partial.passwordReset ?? defaults.passwordReset,
+    magicLinks: partial.magicLinks ?? defaults.magicLinks,
     oauth2: partial.oauth2 ?? defaults.oauth2,
   };
 }
@@ -157,6 +181,7 @@ export function validatePrefixes(prefixes: PrefixConfig): void {
     'twoFA',
     'email',
     'passwordReset',
+    'magicLinks',
     'oauth2',
   ];
 

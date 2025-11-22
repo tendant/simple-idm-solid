@@ -40,7 +40,7 @@ import type {
 import { ApiException } from '../types/api';
 import {
   type PrefixConfig,
-  DEFAULT_V1_PREFIXES,
+  DEFAULT_V2_PREFIXES,
   LEGACY_PREFIXES,
   buildPrefixesFromBase,
   buildPrefixesFromVersion,
@@ -131,9 +131,9 @@ export class SimpleIdmClient {
     else if (config.useLegacyPrefixes) {
       basePrefixes = LEGACY_PREFIXES;
     }
-    // Priority 4: Default to v1
+    // Priority 4: Default to v2
     else {
-      basePrefixes = DEFAULT_V1_PREFIXES;
+      basePrefixes = DEFAULT_V2_PREFIXES;
     }
 
     // Merge custom prefixes if provided (allows overriding specific routes)
@@ -156,7 +156,7 @@ export class SimpleIdmClient {
    * Tokens are automatically stored in HTTP-only cookies by the server
    */
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await this.request<LoginResponse>(`${this.prefixes.login}/`, {
+    const response = await this.request<LoginResponse>(`${this.prefixes.login}/login`, {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -168,7 +168,7 @@ export class SimpleIdmClient {
    * Accepts either username or email
    */
   async requestMagicLink(request: MagicLinkRequest): Promise<MagicLinkResponse> {
-    const response = await this.request<MagicLinkResponse>(`${this.prefixes.login}/magic-link`, {
+    const response = await this.request<MagicLinkResponse>(`${this.prefixes.magicLinks}/`, {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -181,7 +181,7 @@ export class SimpleIdmClient {
    */
   async validateMagicLink(token: string): Promise<MagicLinkValidateResponse> {
     const response = await this.request<MagicLinkValidateResponse>(
-      `${this.prefixes.login}/magic-link/validate?token=${encodeURIComponent(token)}`,
+      `${this.prefixes.magicLinks}/verify?token=${encodeURIComponent(token)}`,
       {
         method: 'GET',
       },
@@ -194,7 +194,7 @@ export class SimpleIdmClient {
    * New tokens are automatically stored in HTTP-only cookies by the server
    */
   async refreshToken(): Promise<TokenRefreshResponse> {
-    const response = await this.request<TokenRefreshResponse>(`${this.prefixes.login}/token/refresh`, {
+    const response = await this.request<TokenRefreshResponse>(`${this.prefixes.login}/refresh`, {
       method: 'POST',
     });
     return response;
@@ -219,7 +219,7 @@ export class SimpleIdmClient {
    * Otherwise, performs passwordless registration
    */
   async signup(data: SignupRequest): Promise<SignupResponse> {
-    const response = await this.request<SignupResponse>(`${this.prefixes.signup}`, {
+    const response = await this.request<SignupResponse>(`${this.prefixes.signup}/signup`, {
       method: 'POST',
       body: JSON.stringify(data),
     });

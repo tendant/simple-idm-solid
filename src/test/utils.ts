@@ -32,8 +32,7 @@ export function createMockClient(configOverrides?: Partial<ApiClientConfig>): Si
   vi.spyOn(client, 'getPasswordPolicy');
   vi.spyOn(client, 'requestMagicLink');
   vi.spyOn(client, 'validateMagicLink');
-  vi.spyOn(client, 'signupPasswordless');
-  vi.spyOn(client, 'signupWithPassword');
+  vi.spyOn(client, 'signup');
 
   return client;
 }
@@ -71,7 +70,7 @@ export function mockMultipleUsers(users = [
   { id: '2', username: 'user2', email: 'user2@example.com' },
 ]): LoginResponse {
   return {
-    status: 'multiple_users',
+    status: 'user_selection_required',
     message: 'Multiple users found',
     users,
     temp_token: 'mock-temp-token',

@@ -357,7 +357,7 @@ describe('useLogin', () => {
       await result.submit();
 
       expect(result.response()).toEqual(multipleUsersResponse);
-      expect(result.response()?.status).toBe('multiple_users');
+      expect(result.response()?.status).toBe('user_selection_required');
     });
 
     it('should call onSuccess for multiple users', async () => {

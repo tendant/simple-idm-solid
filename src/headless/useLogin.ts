@@ -209,8 +209,8 @@ export function useLogin(config: UseLoginConfig): UseLoginReturn {
       else if (loginResponse.status === '2fa_required') {
         config.onSuccess?.(loginResponse);
       }
-      // Handle multiple users
-      else if (loginResponse.status === 'multiple_users') {
+      // Handle user selection required
+      else if (loginResponse.status === 'user_selection_required') {
         config.onSuccess?.(loginResponse);
       }
     } catch (err) {

@@ -13,21 +13,26 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  status: 'success' | '2fa_required' | 'multiple_users';
-  user_uuid?: string;
-  username?: string;
-  email?: string;
-  /** Note: Token also set in HTTP-only cookie */
-  access_token?: string;
-  /** Note: Token also set in HTTP-only cookie */
-  refresh_token?: string;
-  /** Temporary token for multi-step flows (2FA, user selection) */
+  status: 'success' | '2fa_required' | 'user_selection_required';
+  /** User object when status is 'success' */
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    roles: string[];
+  };
+  /** Multiple users when status is 'user_selection_required' */
+  users?: Array<{
+    id: string;
+    name: string;
+    email: string;
+    roles: string[];
+  }>;
+  /** Temporary token for multi-step flows (2FA, user selection). Note: Also set in HTTP-only cookie */
   temp_token?: string;
-  message?: string;
   /** Available 2FA methods when status is '2fa_required' */
   two_factor_methods?: TwoFactorMethod[];
-  /** Multiple users when status is 'multiple_users' - uses IdmUser format from login API */
-  users?: IdmUser[];
+  message?: string;
 }
 
 export interface TwoFactorMethod {
@@ -131,11 +136,14 @@ export interface MagicLinkResponse {
 
 export interface MagicLinkValidateResponse {
   status: 'success';
-  user_uuid: string;
-  username: string;
-  email?: string;
-  access_token: string;
-  refresh_token: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    roles: string[];
+  };
+  temp_token?: string;
+  message?: string;
 }
 
 // ============================================================================

@@ -74,6 +74,16 @@ export type { LabelProps } from './primitives/Label';
 export { SimpleIdmClient } from './api/client';
 export type { ApiClientConfig } from './api/client';
 
+// API Configuration
+export {
+  DEFAULT_V1_PREFIXES,
+  DEFAULT_V2_PREFIXES,
+  LEGACY_PREFIXES,
+  buildPrefixesFromBase,
+  buildPrefixesFromVersion,
+  type PrefixConfig,
+} from './api/config';
+
 // ============================================================================
 // Hooks
 // ============================================================================

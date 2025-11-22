@@ -79,9 +79,9 @@ export function useAuth(options: UseAuthOptions): UseAuthReturn {
       } else if (response.status === '2fa_required') {
         // 2FA required - caller should handle this
         throw new Error('2FA_REQUIRED');
-      } else if (response.status === 'multiple_users') {
-        // Multiple users - caller should handle this
-        throw new Error('MULTIPLE_USERS');
+      } else if (response.status === 'user_selection_required') {
+        // User selection required - caller should handle this
+        throw new Error('USER_SELECTION_REQUIRED');
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
