@@ -58,7 +58,7 @@ export const DEFAULT_V2_PREFIXES: PrefixConfig = {
   email: '/api/v2/email',
   passwordReset: '/api/v2/passwords',
   magicLinks: '/api/v2/magic-links',
-  oauth2: '/api/idm/oauth2',
+  oauth2: '/api/v2/oauth2',
 };
 
 /**
