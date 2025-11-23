@@ -194,7 +194,7 @@ export class SimpleIdmClient {
    * New tokens are automatically stored in HTTP-only cookies by the server
    */
   async refreshToken(): Promise<TokenRefreshResponse> {
-    const response = await this.request<TokenRefreshResponse>(`${this.prefixes.login}/refresh`, {
+    const response = await this.request<TokenRefreshResponse>(`${this.prefixes.login}/token/refresh`, {
       method: 'POST',
     });
     return response;
