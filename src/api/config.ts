@@ -59,7 +59,7 @@ export const DEFAULT_V2_PREFIXES: PrefixConfig = {
   twoFA: '/api/v2/2fa',
   email: '/api/v2/email',
   passwordReset: '/api/v2/passwords',
-  magicLinks: '/api/v2/magic-links',
+  magicLinks: '/api/v2/auth/magic-link',  // Magic links are under auth prefix
   oauth2: '/api/v2/oauth2',
 };
 

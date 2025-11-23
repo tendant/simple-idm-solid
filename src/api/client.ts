@@ -168,7 +168,7 @@ export class SimpleIdmClient {
    * Accepts either username or email
    */
   async requestMagicLink(request: MagicLinkRequest): Promise<MagicLinkResponse> {
-    const response = await this.request<MagicLinkResponse>(`${this.prefixes.magicLinks}/`, {
+    const response = await this.request<MagicLinkResponse>(this.prefixes.magicLinks, {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -181,7 +181,7 @@ export class SimpleIdmClient {
    */
   async validateMagicLink(token: string): Promise<MagicLinkValidateResponse> {
     const response = await this.request<MagicLinkValidateResponse>(
-      `${this.prefixes.magicLinks}/verify?token=${encodeURIComponent(token)}`,
+      `${this.prefixes.magicLinks}/validate?token=${encodeURIComponent(token)}`,
       {
         method: 'GET',
       },
