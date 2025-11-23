@@ -219,7 +219,7 @@ export class SimpleIdmClient {
    * Otherwise, performs passwordless registration
    */
   async signup(data: SignupRequest): Promise<SignupResponse> {
-    const response = await this.request<SignupResponse>(`${this.prefixes.signup}/signup`, {
+    const response = await this.request<SignupResponse>(this.prefixes.signup, {
       method: 'POST',
       body: JSON.stringify(data),
     });

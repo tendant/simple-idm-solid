@@ -48,11 +48,13 @@ export const DEFAULT_V1_PREFIXES: PrefixConfig = {
  * Default prefixes for API v2
  *
  * Uses clean handlers without code generation.
- * Pattern: `/api/v2/auth` for auth/signup, `/api/v2/*` for other endpoints.
+ * Pattern: `/api/v2/auth` for auth routes (login/logout/refresh appended),
+ *         `/api/v2/signup` for signup (full path, no suffix),
+ *         `/api/v2/*` for other endpoints.
  */
 export const DEFAULT_V2_PREFIXES: PrefixConfig = {
   login: '/api/v2/auth',
-  signup: '/api/v2/auth',
+  signup: '/api/v2/signup',  // Full path - handler mounted directly here
   profile: '/api/v2/profile',
   twoFA: '/api/v2/2fa',
   email: '/api/v2/email',
