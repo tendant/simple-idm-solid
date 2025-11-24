@@ -166,6 +166,15 @@ export interface SignupRequest {
 export interface SignupResponse {
   user_id: string;
   message: string;
+  /** Status field present when auto-login is enabled */
+  status?: 'success';
+  /** User data when auto-login is enabled */
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    roles: string[];
+  };
 }
 
 // ============================================================================
